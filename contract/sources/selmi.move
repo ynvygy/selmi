@@ -27,12 +27,13 @@ module selmi::selmi {
         price: u64,
         description: String,
         status: String,
-        //documents: vector<Document>,
+        documents: vector<Document>,
+        photos: vector<String>,
         offers: vector<Offer>,
         estimates: vector<Estimation>,
         ai_estimates: vector<AiEstimation>,
         legal_offers: vector<CompanyOffer>,
-        //legal_operator: Company
+        legal_operator: address
     }
 
     struct Listings has key {
@@ -64,7 +65,7 @@ module selmi::selmi {
         company: address,
         price: u64,
         description: String,
-        //attached_documents: vector<Document>
+        attached_documents: vector<Document>
     }
 
     struct AiEstimation has copy, store {
@@ -113,7 +114,16 @@ module selmi::selmi {
             offers: vector::empty(),
             estimates: vector::empty(),
             ai_estimates: vector::empty(),
-            legal_offers: vector::empty()
+            legal_offers: vector::empty(),
+            documents: vector::empty(),
+            legal_operator: user_address,
+            photos: vector::empty(),
+        };
+
+        if (!exists<Listings>(user_address)) {
+            move_to(user, Listings {
+                listings: smart_vector::new(),
+            });
         };
 
         let listings = borrow_global_mut<Listings>(user_address);
@@ -124,8 +134,8 @@ module selmi::selmi {
     public entry fun create_company(company: &signer, description: String) acquires Companies {
         let new_company = Company {
             description: description,
-            documents: vector::empty(),
-            reviews: vector::empty()
+            documents: vector::empty<Document>(),
+            reviews: vector::empty<Review>()
         };
 
         move_to(company, new_company);
@@ -154,7 +164,7 @@ module selmi::selmi {
             company: user_address,
             price: price,
             description: description,
-            //attached_documents: attached_documents
+            attached_documents: vector::empty()
         };
 
         vector::push_back(&mut listing.estimates, estimation);
