@@ -245,12 +245,20 @@ module selmi::selmi {
 
     #[view]
     public fun get_user_listings(user: address): vector<Listing> acquires Listings {
-        smart_vector::to_vector(&borrow_global<Listings>(user).listings)
+        if (exists<Listings>(user)) {
+            smart_vector::to_vector(&borrow_global<Listings>(user).listings)
+        } else {
+            vector[]
+        }
     }
 
     #[view]
-    public fun get_company(company: address): Company acquires Company {
-        *borrow_global<Company>(company)
+    public fun get_company(company: address): option::Option<Company> acquires Company {
+        if (exists<Company>(company)) {
+            option::some(*borrow_global<Company>(company))
+        } else {
+            option::none()
+        }
     }
 
     #[view]

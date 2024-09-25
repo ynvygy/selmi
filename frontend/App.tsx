@@ -14,6 +14,11 @@ import { MessageBoard } from "@/components/MessageBoard";
 import { Seller } from "@/components/Seller";
 import { Buyer } from "@/components/Buyer";
 import { Company } from "@/components/Company";
+import { MyProperties } from "@/components/MyProperties";
+import { CreateListing } from "@/components/CreateListing";
+import { Marketplace } from "@/components/Marketplace";
+import { MyCompany } from "@/components/MyCompany";
+import { Listing } from "@/components/Listing";
 
 const MODULE_ADDRESS = "0x3f8bac3240eeaa36474bc057392ead9b5ef97e095d562a526b75d87dfd102063";
 const MODULE_NAME = "selmi";
@@ -55,10 +60,6 @@ const HomePage = () => {
 function App() {
   const { account, signAndSubmitTransaction } = useWallet();
 
-  interface Company {
-    address: string;
-  }
-
   interface MyCompany {
     description: string;
     documents: Document[];
@@ -66,24 +67,6 @@ function App() {
   }
 
   const { connected } = useWallet();
-  const [companies, setCompanies] = useState<Company[]>([]);
-
-  const fetchCompanies = async () => {
-    if (!account) return;
-
-    try {
-      const result: string[] = await provider.view({
-        function: `${MODULE_ADDRESS}::${MODULE_NAME}::get_companies_list`,
-        type_arguments: [],
-        arguments: [],
-      });
-
-      console.log(result);
-      setCompanies(result);
-    } catch (error) {
-      console.error('Error fetching companies:', error);
-    }
-  };
 
   return (
     <>
@@ -94,43 +77,16 @@ function App() {
           <Route path="/" element={<HomePage />} />
 
           {/* Routes for each individual component */}
-          <Route path="/seller" element={<Seller />} />
-          <Route path="/buyer" element={<Buyer />} />
+          <Route path="/seller" element={<Seller provider={provider} moduleAddress={MODULE_ADDRESS} moduleName={MODULE_NAME}/>} />
+          <Route path="/buyer" element={<Buyer provider={provider} moduleAddress={MODULE_ADDRESS} moduleName={MODULE_NAME}/>} />
           <Route path="/company" element={<Company provider={provider} moduleAddress={MODULE_ADDRESS} moduleName={MODULE_NAME}/>} />
+          <Route path="/myproperties" element={<MyProperties />} />
+          <Route path="/createlisting" element={<CreateListing />} />
+          <Route path="/marketplace" element={<Marketplace />} />
+          <Route path="/mycompany" element={<MyCompany />} />
+          <Route path="/listings/:id" element={<Listing />} />
         </Routes>
       </Router>
-      <div className="flex items-center justify-center flex-col">
-        {connected ? (
-          <Card>
-            <CardContent className="flex flex-col gap-10 pt-6">
-              <WalletDetails />
-              <NetworkInfo />
-              <AccountInfo />
-              <TransferAPT />
-              <MessageBoard />
-            </CardContent>
-
-            <div className="flex justify-center mt-16">
-              <button
-                className="px-6 py-3 text-lg font-semibold rounded-lg"
-                onClick={fetchCompanies}
-                style={{
-                  background: "none",
-                  border: "2px solid transparent",
-                  borderImage: "linear-gradient(to right, #3b82f6, #22c55e) 1",
-                  boxShadow: "0 0 10px rgba(59, 130, 246, 0.5)",
-                }}
-              >
-                Fetch Companies
-              </button>
-            </div>
-          </Card>
-        ) : (
-          <CardHeader>
-            <CardTitle>To get started Connect a wallet</CardTitle>
-          </CardHeader>
-        )}
-      </div>
     </>
   );
 }
