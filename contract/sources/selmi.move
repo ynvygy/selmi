@@ -89,6 +89,34 @@ module selmi::selmi {
         addresses: smart_vector::SmartVector<address>
     }
 
+    // EVENTS
+    #[event]
+    struct CompanyCreated has drop, store {}
+
+    #[event]
+    struct CompanyReviewed has drop, store {}
+
+    #[event]
+    struct ListingCreated has drop, store {}
+
+    #[event]
+    struct ListingStatusChange has drop, store {}
+
+    #[event]
+    struct ListingOfferCreated has drop, store {}
+
+    #[event]
+    struct ListingEstimateAdded has drop, store {}
+
+    #[event]
+    struct ListingAiEstimateAdded has drop, store {}
+
+    #[event]
+    struct ListingLegalOfferCreated has drop, store {}
+
+    #[event]
+    struct ListingLegalOfferOperatorSelected has drop, store {}
+
     fun init_module(deployer: &signer) {
         move_to(deployer, ListingOwners {
             addresses: smart_vector::new(),

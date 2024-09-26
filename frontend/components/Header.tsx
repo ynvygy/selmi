@@ -6,7 +6,7 @@ export function Header() {
       <div className="logo flex items-center">
         <div className="h-8 w-[30px] mr-2"></div>
       </div>
-      <h1 className="display text-lg">Selmi</h1>
+      <h1 className="display text-lg mr-[7%]">Selmi</h1>
 
       <div className="flex gap-2 items-center flex-wrap">
         <WalletSelector />

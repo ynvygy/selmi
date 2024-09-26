@@ -152,6 +152,18 @@ textarea {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.cancel-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #EE4B2B;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 
 .submit-button:disabled {
@@ -196,12 +208,20 @@ textarea {
 
 .background-seller {
   background-color: #FFB3B3;
+  height: 100%;
 }
 
 .background-company {
   background-color: #A9F5F7;
+  height: 100%;
 }
 
 .background-buyer {
   background-color: #C6E2B5;
+  height: 100%;
+}
+
+.listing-image {
+  border-radius: 10%;
+  box-shadow: 0 1px 20px rgba(0, 0, 0, 0.3);
 }

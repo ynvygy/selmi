@@ -23,8 +23,8 @@ export function Listing() {
   const [loading, setLoading] = useState<boolean>(false);
 
   const api = new OpenAI({
-    API_KEY,
-    BASE_URL,
+    apiKey: API_KEY,
+    baseUrl: BASE_URL,
     dangerouslyAllowBrowser: true
   });
 

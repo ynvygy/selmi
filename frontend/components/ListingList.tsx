@@ -34,9 +34,10 @@ export const ListingList: React.FC<ListingListPropsProps> = ({ listings, provide
   const { account, signAndSubmitTransaction } = useWallet();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [createListing, setCreateListing] = useState<boolean>(false);
 
-  const projectId = "2O6VRZfmN2n7TiwXvv0nN0PZWmY"
-  const projectSecret = "b1b3db7115657fdaf9c21ea68df9637b"
+  const projectId = import.meta.env.REACT_APP_PROJECT_ID;
+  const projectSecret = import.meta.env.REACT_APP_PROJECT_SECRET;
   const auth = 'Basic ' + Buffer.from(projectId + ':' + projectSecret).toString('base64');
   const client = create({
     host: 'ipfs.infura.io',
@@ -103,10 +104,26 @@ export const ListingList: React.FC<ListingListPropsProps> = ({ listings, provide
     }
   }
 
+  const toggleListing = async (event) => {
+    setCreateListing(!createListing)
+  }
+
   return (
     <div className="h-[20%] w-[60%]">
-      {seller ?
-        (<div className="form-container flex items-center justify-center ">
+      <div className="listing-list pl-[50%] mt-[10%] mb-[10%]">
+        {listings.map((listing, index) => (
+          <ListingCard
+            key={index}
+            id={index}
+            price={listing.price}
+            description={listing.description}
+            seller={seller}
+          />
+        ))}
+      </div>
+
+      {(seller && createListing) ?
+        (<div className="ml-[65%]">
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label htmlFor="price">Price:</label>
@@ -131,6 +148,9 @@ export const ListingList: React.FC<ListingListPropsProps> = ({ listings, provide
             <button type="submit" disabled={loading} className="submit-button">
               {loading ? 'Creating...' : 'Create Listing'}
             </button>
+            <button onClick={toggleListing} className="cancel-button">
+              Cancel Listing
+            </button>
           </form>
           <div className="mb-3">
             <label>Upload Document:</label>
@@ -150,20 +170,13 @@ export const ListingList: React.FC<ListingListPropsProps> = ({ listings, provide
               className="form-control"
             />
           </div>
-        </div>) : (<></>)
+        </div>) : (seller && !createListing) ? (
+          <div className="w-[20%] ml-[65%]">
+            <button onClick={toggleListing} className="submit-button">
+              Add new listing
+            </button>
+          </div>) : (<></>)
       }
-
-      <div className="listing-list pl-[50%] mt-[10%]">
-        {listings.map((listing, index) => (
-          <ListingCard
-            key={index}
-            id={index}
-            price={listing.price}
-            description={listing.description}
-            seller={seller}
-          />
-        ))}
-      </div>
     </div>
   );
 }

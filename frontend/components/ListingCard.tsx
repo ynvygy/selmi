@@ -23,10 +23,16 @@ export const ListingCard: React.FC<ListingCardProps> = ({ id, price, description
   };
 
   return (
-    <div className="listing-card" onClick={handleClick} style={{ cursor: 'pointer' }}>
-      <h3>Price: {price}</h3>
-      <p>Description: {description}</p>
-      {/* Add more details or styling as needed */}
+    <div className="listing-card flex" onClick={handleClick} style={{ cursor: 'pointer' }}>
+      <div className="w-1/4 listing-image">
+        <img src="public/aptos.png" alt="Listing" className="listing-image w-full h-auto" />
+      </div>
+      <div className="w-2/3 pl-4 flex flex-col justify-between">
+        <p className="italic m-0">{description}</p>
+        <h3 className="font-bold ml-[60%]">
+          Price: {price}
+        </h3>
+      </div>
     </div>
   );
 }
