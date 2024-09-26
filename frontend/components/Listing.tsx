@@ -9,9 +9,76 @@ import { Input } from "@/components/ui/input";
 import { getAccountAPTBalance } from "@/view-functions/getAccountBalance";
 import { transferAPT } from "@/entry-functions/transferAPT";
 import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
+import { OpenAI } from "openai";
+
+const baseURL = "later";
+const apiKey = "later";
+const systemPrompt = "You are a real estate agent. Analyze and give me the exact price";
+const userPrompt = "To be added later. Give me just the price, don't write anything else";
 
 export function Listing() {
   const navigate = useNavigate();
+
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const api = new OpenAI({
+    apiKey,
+    baseURL,
+    dangerouslyAllowBrowser: true
+  });
+
+  const fetchAiEstimate = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!account) return;
+
+    setLoading(true);
+    setError(null);
+
+    finalUserPrompt = ""
+
+    const ai_result = await api.chat.completions.create({
+      model: "mistralai/Mistral-7B-Instruct-v0.2",
+      messages: [
+        {
+          role: "system",
+          content: systemPrompt,
+        },
+        {
+          role: "user",
+          content: userPrompt,
+        },
+      ],
+      temperature: 0.7,
+      max_tokens: 256,
+    });
+
+    const response = ai_result.choices[0].message.content;
+
+    console.log("User:", userPrompt);
+    console.log("AI:", response);
+
+    const transaction:InputTransactionData = {
+       data: {
+         function: `${moduleAddress}::${moduleName}::add_ai_estimate`,
+         type_arguments: [],
+         functionArguments: [account.address, 0, 0, "mistralai/Mistral-7B-Instruct-v0.2", finalUserPrompt, response ], //to be updated
+       }
+     }
+
+    try {
+      const response = await signAndSubmitTransaction(transaction);
+
+      await provider.waitForTransaction(transaction.hash);
+      setDescription('');
+      alert('Listing created successfully!');
+    } catch (err) {
+      console.error('Error creating listing:', err);
+      setError('Failed to create listing. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
@@ -20,7 +87,7 @@ export function Listing() {
         <h3>Title</h3>
         <p>Description</p>
       </div>
-      <button className="btn btn-white">Add ai estimate</button>
+      <button className="btn btn-white" onClick={fetchAiEstimate}>Add ai estimate</button>
     </>
   );
 }

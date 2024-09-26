@@ -157,3 +157,51 @@ textarea {
 .submit-button:disabled {
   background-color: #ccc;
 }
+
+.background {
+  background-image: url('./public/selmi.jpeg');
+  background-size: cover;
+  background-position: center;
+}
+
+.logo {
+  background-image: url('./public/s3.jpeg');
+  background-size: cover;
+  background-position: center;
+}
+
+.seller {
+  border-radius: 100%;
+  width: 11%;
+  margin-top:3%;
+  margin-left: 71%;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 1.5);
+}
+
+.company {
+  border-radius: 100%;
+  width: 11%;
+  margin-left: 43%;
+  margin-top: 1.5%;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 1.5);
+}
+
+.buyer {
+  border-radius: 100%;
+  width: 11%;
+  margin-top: 5%;
+  margin-left: 27%;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 1.5);
+}
+
+.background-seller {
+  background-color: #FFB3B3;
+}
+
+.background-company {
+  background-color: #A9F5F7;
+}
+
+.background-buyer {
+  background-color: #C6E2B5;
+}

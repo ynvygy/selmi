@@ -29,30 +29,28 @@ const HomePage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex flex-col h-screen">
-      {/* Top Div for Seller */}
+    <div className="flex flex-col h-screen background">
       <div
-        className="h-[20%] w-full bg-red-500 flex items-center justify-center cursor-pointer"
+        className="h-[20%] w-full bg-blue-500 flex items-center justify-center cursor-pointer bg-opacity-50 company"
+        onClick={() => navigate('/company')}
+      >
+        <h1 className="text-white text-xl font-bold">Companies</h1>
+      </div>
+
+      <div
+        className="h-[20%] w-full bg-red-500 flex items-center justify-center cursor-pointer bg-opacity-40 seller"
         onClick={() => navigate('/seller')}
       >
         <h1 className="text-white text-xl font-bold">Sellers</h1>
       </div>
 
-      {/* Middle Div for Buyer */}
       <div
-        className="h-[20%] w-full bg-green-500 flex items-center justify-center cursor-pointer"
+        className="h-[20%] w-full bg-green-500 flex items-center justify-center cursor-pointer bg-opacity-50 buyer"
         onClick={() => navigate('/buyer')}
       >
         <h1 className="text-white text-xl font-bold">Buyers</h1>
       </div>
 
-      {/* Bottom Div for Company */}
-      <div
-        className="h-[20%] w-full bg-blue-500 flex items-center justify-center cursor-pointer"
-        onClick={() => navigate('/company')}
-      >
-        <h1 className="text-white text-xl font-bold">Companies</h1>
-      </div>
     </div>
   );
 };

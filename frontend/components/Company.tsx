@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { getAccountAPTBalance } from "@/view-functions/getAccountBalance";
 import { transferAPT } from "@/entry-functions/transferAPT";
 import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
+import { CompanyCard } from '@/components/CompanyCard';
 
 interface Company {
   description: string;
@@ -174,9 +175,15 @@ export const Company: React.FC<CompanyProps> = ({provider, moduleAddress, module
 
   return (
     <>
-      <div className="flex h-screen">
+      <div className="flex h-screen background-company">
         {company ? ( // Check if company is not null
-          <div>{company.description}</div>
+          <div className="h-[20%] w-[60%]">
+            <div className="listing-list pl-[50%] mt-[10%]">
+              <div className="listing-card" style={{ cursor: 'pointer' }}>
+                <CompanyCard company={company} />
+              </div>
+            </div>
+          </div>
         ) : (
           <>
             <div>Make your company</div>

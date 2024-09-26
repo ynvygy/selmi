@@ -89,7 +89,7 @@ export const Seller: React.FC<SellerProps> = ({provider, moduleAddress, moduleNa
   }, [account]);
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen background-seller">
       {/* Main content (80% width) */}
       <ListingList listings={listings} provider={provider} moduleAddress={moduleAddress} moduleName={moduleName} seller={seller} />
     </div>
