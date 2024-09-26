@@ -20,8 +20,8 @@ import { Marketplace } from "@/components/Marketplace";
 import { MyCompany } from "@/components/MyCompany";
 import { Listing } from "@/components/Listing";
 
-const MODULE_ADDRESS = "0x3f8bac3240eeaa36474bc057392ead9b5ef97e095d562a526b75d87dfd102063";
-const MODULE_NAME = "selmi";
+const MODULE_ADDRESS = import.meta.env.REACT_APP_MODULE_ADDRESS;
+const MODULE_NAME = import.meta.env.REACT_APP_MODULE_NAME;
 
 const provider = new Provider(Network.DEVNET);
 

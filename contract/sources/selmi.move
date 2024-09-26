@@ -234,6 +234,13 @@ module selmi::selmi {
         vector::push_back(&mut company.reviews, new_review);
     }
 
+    public entry fun change_listing_status(user: &signer, index: u64, status: String) acquires Listing {
+        let user_address = signer::address_of(user);
+        let listings = borrow_global_mut<Listings>(user_address);
+        let listing = smart_vector::borrow_mut(&mut listings.listings, index);
+        listing.status = status;
+    }
+
     #[view]
     public fun get_owners_list(): vector<address> acquires ListingOwners {
         if (exists<ListingOwners>(@selmi)) {

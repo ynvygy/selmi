@@ -11,8 +11,8 @@ import { transferAPT } from "@/entry-functions/transferAPT";
 import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import { OpenAI } from "openai";
 
-const baseURL = "later";
-const apiKey = "later";
+const BASE_URL = import.meta.env.REACT_APP_BASE_URL;
+const API_KEY = import.meta.env.REACT_APP_API_KEY;
 const systemPrompt = "You are a real estate agent. Analyze and give me the exact price";
 const userPrompt = "To be added later. Give me just the price, don't write anything else";
 
@@ -23,8 +23,8 @@ export function Listing() {
   const [loading, setLoading] = useState<boolean>(false);
 
   const api = new OpenAI({
-    apiKey,
-    baseURL,
+    API_KEY,
+    BASE_URL,
     dangerouslyAllowBrowser: true
   });
 
