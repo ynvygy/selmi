@@ -82,6 +82,11 @@ export const Company: React.FC<CompanyProps> = ({provider, moduleAddress, module
 
   const [seller, setSeller] = useState(false);
 
+  const getCurrentTimestamp = (): number => {
+    const currentDate = new Date();
+    return Math.floor(currentDate.getTime() / 1000);
+  };
+
   const fetchAllOwners = async () => {
     if (!account) return;
 
@@ -150,7 +155,7 @@ export const Company: React.FC<CompanyProps> = ({provider, moduleAddress, module
        data: {
          function: `${moduleAddress}::${moduleName}::create_company`,
          type_arguments: [],
-         functionArguments: [description],
+         functionArguments: [description, getCurrentTimestamp()],
        }
      }
 
@@ -200,7 +205,7 @@ export const Company: React.FC<CompanyProps> = ({provider, moduleAddress, module
                 </div>
                 {error && <p className="error-message">{error}</p>}
                 <button type="submit" disabled={loading} className="submit-button">
-                  {loading ? 'Creating...' : 'Create Listing'}
+                  {loading ? 'Creating...' : 'Create Company'}
                 </button>
               </form>
             </div>

@@ -28,6 +28,11 @@ export function Listing() {
     dangerouslyAllowBrowser: true
   });
 
+  const getCurrentTimestamp = (): number => {
+    const currentDate = new Date();
+    return Math.floor(currentDate.getTime() / 1000);
+  };
+
   const fetchAiEstimate = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!account) return;
@@ -62,7 +67,7 @@ export function Listing() {
        data: {
          function: `${moduleAddress}::${moduleName}::add_ai_estimate`,
          type_arguments: [],
-         functionArguments: [account.address, 0, 0, "mistralai/Mistral-7B-Instruct-v0.2", finalUserPrompt, response ], //to be updated
+         functionArguments: [account.address, 0, 0, "mistralai/Mistral-7B-Instruct-v0.2", finalUserPrompt, response, getCurrentTimestamp() ], //to be updated
        }
      }
 

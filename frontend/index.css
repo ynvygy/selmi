@@ -126,6 +126,7 @@ label {
 }
 
 input[type="number"],
+input[type="text"],
 textarea {
   width: 100%;
   padding: 10px;
@@ -171,13 +172,13 @@ textarea {
 }
 
 .background {
-  background-image: url('./public/selmi.jpeg');
+  background-image: url('./selmi.jpeg');
   background-size: cover;
   background-position: center;
 }
 
 .logo {
-  background-image: url('./public/s3.jpeg');
+  background-image: url('./s3.jpeg');
   background-size: cover;
   background-position: center;
 }
