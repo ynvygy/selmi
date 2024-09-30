@@ -390,6 +390,13 @@ module selmi::selmi {
     }
 
     #[view]
+    public fun get_user_listing(user: address, index: u64): Listing acquires Listings {
+        let listings = borrow_global<Listings>(user);
+        let listing = *smart_vector::borrow(&listings.listings, index);
+        listing
+    }
+
+    #[view]
     public fun get_company(company: address): option::Option<Company> acquires Company {
         if (exists<Company>(company)) {
             option::some(*borrow_global<Company>(company))

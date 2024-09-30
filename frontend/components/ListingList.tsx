@@ -199,7 +199,6 @@ export const ListingList: React.FC<ListingListPropsProps> = ({ listings, provide
                 id="docDescription"
                 value={docDescription}
                 onChange={(e) => setDocDescription(e.target.value)}
-                required
               />
             </div>
             {documents.length > 0 ? (

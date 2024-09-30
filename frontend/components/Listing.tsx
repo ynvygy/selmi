@@ -21,6 +21,7 @@ export function Listing() {
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [combinedItems, setCombinedItems] = useState([]);
 
   const api = new OpenAI({
     apiKey: API_KEY,
@@ -83,6 +84,197 @@ export function Listing() {
     } finally {
       setLoading(false);
     }
+  }
+
+  const addEstimate = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!account) return;
+
+    setLoading(true);
+    setError(null);
+
+    const transaction:InputTransactionData = {
+       data: {
+         function: `${moduleAddress}::${moduleName}::add_estimate`,
+         type_arguments: [],
+         functionArguments: [account.address, 0, 99999, "description", getCurrentTimestamp() ],
+       }
+     }
+
+    try {
+      const response = await signAndSubmitTransaction(transaction);
+
+      await provider.waitForTransaction(transaction.hash);
+      setDescription('');
+      alert('Estimation created successfully');
+    } catch (err) {
+      console.error('Error creating estimation:', err);
+      setError('Failed to create estimation. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const addReview = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!account) return;
+
+    setLoading(true);
+    setError(null);
+
+    const transaction:InputTransactionData = {
+       data: {
+         function: `${moduleAddress}::${moduleName}::add_listing_review`,
+         type_arguments: [],
+         functionArguments: [account.address, 0, "description", 5, getCurrentTimestamp() ],
+       }
+     }
+
+    try {
+      const response = await signAndSubmitTransaction(transaction);
+
+      await provider.waitForTransaction(transaction.hash);
+      setDescription('');
+      alert('Review created successfully');
+    } catch (err) {
+      console.error('Error creating review:', err);
+      setError('Failed to create review. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const addOffer = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!account) return;
+
+    setLoading(true);
+    setError(null);
+
+    const transaction:InputTransactionData = {
+       data: {
+         function: `${moduleAddress}::${moduleName}::add_offer`,
+         type_arguments: [],
+         functionArguments: [account.address, 0, "description", 65000, getCurrentTimestamp() ],
+       }
+     }
+
+    try {
+      const response = await signAndSubmitTransaction(transaction);
+
+      await provider.waitForTransaction(transaction.hash);
+      setDescription('');
+      alert('Offer created successfully');
+    } catch (err) {
+      console.error('Error creating offer:', err);
+      setError('Failed to create offer. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const addLegalOffer = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!account) return;
+
+    setLoading(true);
+    setError(null);
+
+    const transaction:InputTransactionData = {
+       data: {
+         function: `${moduleAddress}::${moduleName}::add_company_offer`,
+         type_arguments: [],
+         functionArguments: [account.address, 0, 100, getCurrentTimestamp() ],
+       }
+     }
+
+    try {
+      const response = await signAndSubmitTransaction(transaction);
+
+      await provider.waitForTransaction(transaction.hash);
+      setDescription('');
+      alert('Legal offer created successfully');
+    } catch (err) {
+      console.error('Error creating legal offer:', err);
+      setError('Failed to create legal offer. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const changeOfferStatus = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!account) return;
+
+    setLoading(true);
+    setError(null);
+
+    const transaction:InputTransactionData = {
+       data: {
+         function: `${moduleAddress}::${moduleName}::change_offer_status`,
+         type_arguments: [],
+         functionArguments: [0, "status" ],
+       }
+     }
+
+    try {
+      const response = await signAndSubmitTransaction(transaction);
+
+      await provider.waitForTransaction(transaction.hash);
+      setDescription('');
+      alert('Offer status changed successfully');
+    } catch (err) {
+      console.error('Error changing offer status:', err);
+      setError('Failed to change offer status. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const changeLegalOfferStatus = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!account) return;
+
+    setLoading(true);
+    setError(null);
+
+    const transaction:InputTransactionData = {
+       data: {
+         function: `${moduleAddress}::${moduleName}::change_company_offer_status`,
+         type_arguments: [],
+         functionArguments: [ 0, 0, "status" ],
+       }
+     }
+
+    try {
+      const response = await signAndSubmitTransaction(transaction);
+
+      await provider.waitForTransaction(transaction.hash);
+      setDescription('');
+      alert('Legal offer status changed successfully');
+    } catch (err) {
+      console.error('Error changing legal offer status:', err);
+      setError('Failed to change legal offer status. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const orderListingItems = async () => {
+    if (listing) {
+      const combined = [
+          ...listing.offers.map(offer => ({ ...offer, type: 'offer' })),
+          ...listing.estimates.map(est => ({ ...est, type: 'estimation' })),
+          ...listing.ai_estimates.map(aiEst => ({ ...aiEst, type: 'ai_estimation' })),
+          ...listing.reviews.map(review => ({ ...review, type: 'review' })),
+          ...listing.legal_offers.map(legalOffer => ({ ...legalOffer, type: 'legal_offer' }))
+      ];
+
+      // Sort by timestamp
+      combined.sort((a, b) => a.timestamp - b.timestamp);
+
+      setCombinedItems(combined);
+    }
   };
 
   return (
@@ -93,6 +285,12 @@ export function Listing() {
         <p>Description</p>
       </div>
       <button className="btn btn-white" onClick={fetchAiEstimate}>Add ai estimate</button>
+      <button className="btn btn-white" onClick={addEstimate}>Add estimate</button>
+      <button className="btn btn-white" onClick={addReview}>Add review</button>
+      <button className="btn btn-white" onClick={addOffer}>Add offer</button>
+      <button className="btn btn-white" onClick={addLegalOffer}>Add Legal Offer</button>
+      <button className="btn btn-white" onClick={changeOfferStatus}>Save offer status</button>
+      <button className="btn btn-white" onClick={changeLegalOfferStatus}>Save legal offer status</button>
     </>
   );
 }
