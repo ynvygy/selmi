@@ -4,7 +4,8 @@ version = "1.0.0"
 authors = []
 
 [addresses]
-selmi = "0x3f8bac3240eeaa36474bc057392ead9b5ef97e095d562a526b75d87dfd102063"
+#selmi = "0x3f8bac3240eeaa36474bc057392ead9b5ef97e095d562a526b75d87dfd102063"
+selmi = "0xee8c9c1ef146cf41a3000605b09f5127333eb14ee78c881e6652c9f4f06cdf70"
 std = "0x1"
 aptos_std = "0x1"
 aptos_framework = "0x1"

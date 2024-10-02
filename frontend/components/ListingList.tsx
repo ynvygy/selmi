@@ -14,7 +14,16 @@ import { ListingCard } from "@/components/ListingCard"
 interface ListingListProps {
   listings: {
     id: number;
-    description: string
+    price: number;
+    description: string;
+    status: string;
+    documents: Document[];
+    photos: string[];
+    offers: Offer[];
+    estimates: Estimation[];
+    ai_estimates: AiEstimation[];
+    legal_offers: CompanyOffer[];
+    legal_operator: string;
   }[];
   provider: any;
   moduleAddress: string;
@@ -132,11 +141,12 @@ export const ListingList: React.FC<ListingListPropsProps> = ({ listings, provide
 
   const toggleListing = async (event) => {
     setCreateListing(!createListing)
+    console.log(listings[0])
   }
 
   return (
     <div className="h-[20%] w-[60%]">
-      <div className="listing-list pl-[50%] mt-[10%] mb-[10%]">
+      <div className="listing-list pl-[50%] mb-[5%] mt-[5%]">
         {listings.map((listing, index) => (
           <ListingCard
             key={index}

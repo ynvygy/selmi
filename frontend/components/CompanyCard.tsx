@@ -31,8 +31,15 @@ export const CompanyCard: React.FC<Company> = ({ company }) => {
 
   return (
     <div className="flex items-center justify-center">
-      {company.description}
-      {rating}
+      <p>
+        Your company's info
+      </p>
+      <p>
+        {company.description}
+      </p>
+      <p>
+        {rating}
+      </p>
     </div>
 
   );

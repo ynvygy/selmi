@@ -52,6 +52,7 @@ module selmi::selmi {
     }
 
     struct Company has key, copy, store {
+        name: String,
         description: String,
         documents: vector<Document>,
         reviews: vector<Review>,
@@ -217,8 +218,9 @@ module selmi::selmi {
         });
     }
 
-    public entry fun create_company(company: &signer, description: String, timestamp: u64) acquires Companies {
+    public entry fun create_company(company: &signer, name: String, description: String, timestamp: u64) acquires Companies {
         let new_company = Company {
+            name: name,
             description: description,
             documents: vector::empty<Document>(),
             reviews: vector::empty<Review>(),
