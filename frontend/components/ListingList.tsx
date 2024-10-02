@@ -140,10 +140,11 @@ export const ListingList: React.FC<ListingListPropsProps> = ({ listings, provide
         {listings.map((listing, index) => (
           <ListingCard
             key={index}
-            id={index}
+            address={listing.ownerAddress}
+            index={listing.index}
             price={listing.price}
             description={listing.description}
-            seller={seller}
+            //seller={seller}
           />
         ))}
       </div>

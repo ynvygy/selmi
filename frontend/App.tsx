@@ -80,7 +80,7 @@ function App() {
           <Route path="/myproperties" element={<MyProperties />} />
           <Route path="/marketplace" element={<Marketplace />} />
           <Route path="/mycompany" element={<MyCompany />} />
-          <Route path="/listings/:id" element={<Listing />} />
+          <Route path="/listings/:address/:index" element={<Listing />} />
         </Routes>
       </Router>
     </>

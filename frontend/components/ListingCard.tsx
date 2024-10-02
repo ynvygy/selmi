@@ -11,15 +11,17 @@ import { transferAPT } from "@/entry-functions/transferAPT";
 import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 
 interface ListingCardProps {
+  address: string,
+  index: number,
   price: number;
   description: string;
 }
 
-export const ListingCard: React.FC<ListingCardProps> = ({ id, price, description }) => {
+export const ListingCard: React.FC<ListingCardProps> = ({ address, index, price, description }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/listings/${id}`);
+    navigate(`/listings/${address}/${index}`);
   };
 
   return (

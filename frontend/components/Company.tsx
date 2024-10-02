@@ -116,7 +116,14 @@ export const Company: React.FC<CompanyProps> = ({provider, moduleAddress, module
           type_arguments: [],
           arguments: [ownerAddress],
         });
-        allListings.push(...userListings[0]);
+
+        const listingsWithOwner = userListings[0].map((listing, index) => ({
+          ...listing,
+          ownerAddress,
+          index,
+        }));
+
+        allListings.push(...listingsWithOwner);
       }
 
       setListings(allListings);
