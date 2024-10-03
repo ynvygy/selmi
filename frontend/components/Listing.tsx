@@ -54,15 +54,30 @@ export function Listing() {
   const [reviewDescription, setReviewDescription] = useState('');
   const [reviewRating, setReviewRating] = useState(0);
 
+  const [addOffer, setAddOffer] = useState(false);
+  const [offerDescription, setOfferDescription] = useState('');
+  const [offerPrice, setOfferPrice] = useState(0);
+
+  const [addLegalOffer, setAddLegalOffer] = useState(false);
+  const [legalOfferPrice, setLegalOfferPrice] = useState(0);
+
   const api = new OpenAI({
-    apiKey: "33c6876df4db4fd393510d73d07b5618",
-    baseUrl: "https://api.aimlapi.com/v1",
+    apiKey: import.meta.env.REACT_APP_API_KEY,
+    baseUrl: import.meta.env.REACT_APP_BASE_URL,
     dangerouslyAllowBrowser: true
   });
 
   const getCurrentTimestamp = (): number => {
     const currentDate = new Date();
     return Math.floor(currentDate.getTime() / 1000);
+  };
+
+  const timestampConverter = (timestamp): string => {
+      const date = new Date(timestamp * 1000);
+
+      const formattedDate = date.toLocaleString();
+
+      return formattedDate
   };
 
   const fetchAiEstimate = async (event: React.FormEvent) => {
@@ -132,6 +147,8 @@ export function Listing() {
   const toggleEstimate = async (event) => {
       setAddEstimate(!addEstimate)
       setAddReview(false)
+      setAddOffer(false)
+      setAddLegalOffer(false)
   }
 
   const saveEstimate = async (event: React.FormEvent) => {
@@ -174,6 +191,8 @@ export function Listing() {
   const toggleReview = async (event) => {
       setAddReview(!addReview)
       setAddEstimate(false)
+      setAddOffer(false)
+      setAddLegalOffer(false)
   }
 
   const saveReview = async (event: React.FormEvent) => {
@@ -205,7 +224,22 @@ export function Listing() {
     }
   }
 
-  const addOffer = async (event: React.FormEvent) => {
+  const handleOfferDescriptionChange = async (e) => {
+      setOfferDescription(e.target.value)
+  };
+
+  const handleOfferPriceChange = async (e) => {
+      setOfferPrice(e.target.value);
+  };
+
+  const toggleOffer = async (event) => {
+      setAddOffer(!addOffer)
+      setAddReview(false)
+      setAddEstimate(false)
+      setAddLegalOffer(false)
+  }
+
+  const saveOffer = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!account) return;
 
@@ -216,7 +250,7 @@ export function Listing() {
        data: {
          function: `${moduleAddress}::${moduleName}::add_offer`,
          type_arguments: [],
-         functionArguments: [account.address, 0, "description", 65000, getCurrentTimestamp() ],
+         functionArguments: [address, index, offerDescription, offerPrice, getCurrentTimestamp() ],
        }
      }
 
@@ -234,7 +268,18 @@ export function Listing() {
     }
   }
 
-  const addLegalOffer = async (event: React.FormEvent) => {
+  const handleLegalOfferPriceChange = async (e) => {
+      setLegalOfferPrice(e.target.value);
+  };
+
+  const toggleLegalOffer = async (event) => {
+      setAddLegalOffer(!addLegalOffer)
+      setAddReview(false)
+      setAddEstimate(false)
+      setAddOffer(false)
+  }
+
+  const saveLegalOffer = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!account) return;
 
@@ -351,11 +396,11 @@ export function Listing() {
   const orderListingItems = async () => {
     if (listing) {
       const combined = [
-          ...listing.offers.map(offer => ({ ...offer, type: 'offer' })),
-          ...listing.estimates.map(est => ({ ...est, type: 'estimation' })),
-          ...listing.ai_estimates.map(aiEst => ({ ...aiEst, type: 'ai_estimation' })),
-          ...listing.reviews.map(review => ({ ...review, type: 'review' })),
-          ...listing.legal_offers.map(legalOffer => ({ ...legalOffer, type: 'legal_offer' }))
+          ...listing.offers.map(offer => ({ ...offer, type: 'offer', idx: index })),
+          ...listing.estimates.map(est => ({ ...est, type: 'estimation', idx: index })),
+          ...listing.ai_estimates.map(aiEst => ({ ...aiEst, type: 'ai_estimation', idx: index })),
+          ...listing.reviews.map(review => ({ ...review, type: 'review', idx: index })),
+          ...listing.legal_offers.map(legalOffer => ({ ...legalOffer, type: 'legal_offer', idx: index }))
       ];
 
       // Sort by timestamp
@@ -449,6 +494,56 @@ export function Listing() {
                 </button>
             </>
           )}
+          {addOffer && (
+            <>
+                <label className="block mb-2" htmlFor="price">Description</label>
+                <input
+                    type="text"
+                    id="description"
+                    className="border border-gray-300 p-2 mb-4 w-full"
+                    placeholder="Enter description"
+                    value={offerDescription}
+                    onChange={handleOfferDescriptionChange}
+                />
+
+                <label className="block mb-2" htmlFor="description">Price</label>
+                <input
+                    type="text"
+                    id="price"
+                    className="border border-gray-300 p-2 mb-4 w-full"
+                    placeholder="Enter price"
+                    value={offerPrice}
+                    onChange={handleOfferPriceChange}
+                />
+
+                <button
+                    className="bg-blue-500 text-white py-2 px-4 rounded"
+                    onClick={saveOffer}
+                >
+                    Submit
+                </button>
+            </>
+          )}
+          {addLegalOffer && (
+            <>
+                <label className="block mb-2" htmlFor="description">Price</label>
+                <input
+                    type="text"
+                    id="price"
+                    className="border border-gray-300 p-2 mb-4 w-full"
+                    placeholder="Enter price"
+                    value={offerLegalOfferPrice}
+                    onChange={handleLegalOfferPriceChange}
+                />
+
+                <button
+                    className="bg-blue-500 text-white py-2 px-4 rounded"
+                    onClick={saveLegalOffer}
+                >
+                    Submit
+                </button>
+            </>
+          )}
         </div>
         <div className="w-[25%]">
           <div className="flex flex-col">
@@ -472,13 +567,13 @@ export function Listing() {
             </button>
             <button
               className="w-[50%] bg-purple-500 text-white py-2 rounded hover:bg-purple-600"
-              onClick={addOffer}
+              onClick={toggleOffer}
             >
               Add Offer
             </button>
             <button
               className="w-[50%] bg-red-500 text-white py-2 rounded hover:bg-red-600"
-              onClick={addLegalOffer}
+              onClick={toggleLegalOffer}
             >
               Add Legal Offer
             </button>
@@ -498,26 +593,56 @@ export function Listing() {
         </div>
       </div>
       <div>
-        conversation*
-        <div className="p-4">
+        <div className="p-3 w-[80%] ml-[10%]">
             {combinedItems && combinedItems.map((combination, index) => {
-                // Determine background color based on the type
-                console.log(combination.type)
                 const bgColor =
-                    combination.type === 'estimation'
+                    combination.type === 'ai_estimation'
                         ? 'bg-blue-200'
-                        : combination.type === 'ai_estimation'
+                        : combination.type === 'estimation'
                         ? 'bg-green-200'
-                        : 'bg-gray-200'; // Default color for unknown types
+                        : combination.type === 'review'
+                        ? 'bg-red-200'
+                        : combination.type === 'offer'
+                        ? 'bg-yellow-200'
+                        : combination.type === 'legal_offer'
+                        ? 'bg-brown-200'
+                        : 'bg-gray-200';
 
                 return (
                     <div
                         key={index}
                         className={`p-4 rounded shadow mb-4 ${bgColor}`}
-                    >
-                        <p className="font-semibold">{combination.timestamp}</p>
+                    > {
+                      combination.type === 'ai_estimation' ?
+                      (<>
+                        <p className="font-semibold">{timestampConverter(combination.timestamp)}</p>
+                        <p className="font-semibold">{combination.input}</p>
+                        <p className="italic">Result: {combination.result}</p>
+                      </>) : combination.type === 'estimation' ?
+                      (<>
+                        <p className="font-semibold">{timestampConverter(combination.timestamp)}</p>
+                        <p className="font-semibold">{combination.company}</p>
                         <p>{combination.description}</p>
-                        <p className="italic">Type: {combination.type}</p>
+                        <p className="italic">Price: {combination.price}</p>
+                      </>) : combination.type === 'review' ?
+                      (<>
+                        <p className="font-semibold">{timestampConverter(combination.timestamp)}</p>
+                        <p>{combination.description}</p>
+                        <p className="italic">Rating: {combination.rating}</p>
+                      </>) : combination.type === 'offer' ?
+                      (<>
+                        <p className="font-semibold">{timestampConverter(combination.timestamp)}</p>
+                        <p>{combination.status}</p>
+                        <p className="italic">Price: {combination.price}</p>
+                      </>) : combination.type === 'legal_offer' ?
+                      (<>
+                        <p className="font-semibold">{timestampConverter(combination.timestamp)}</p>
+                        <p className="font-semibold">{combination.address}</p>
+                        <p>{combination.status}</p>
+                        <p className="italic">Price: {combination.price}</p>
+                      </>) : (<></>)
+                    }
+
                     </div>
                 );
             })}

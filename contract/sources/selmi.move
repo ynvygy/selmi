@@ -239,11 +239,16 @@ module selmi::selmi {
         })
     }
 
-    public entry fun add_listing_review(user: &signer, seller: address, index: u64, description: String, rating: u64, timestamp: u64) acquires Listing {
-        let review = Review { description: description, rating: rating, timestamp: timestamp };
-        let company_ref = borrow_global_mut<Listing>(seller);
+    public entry fun add_listing_review(user: &signer, seller: address, index: u64, description: String, rating: u64, timestamp: u64) acquires Listings {
+        let listings = borrow_global_mut<Listings>(seller);
+        let listing = smart_vector::borrow_mut(&mut listings.listings, index);
 
-        vector::push_back(&mut company_ref.reviews, review);
+        let review = Review {
+            description: description,
+            rating: rating, timestamp: timestamp
+        };
+
+        vector::push_back(&mut listing.reviews, review);
     }
 
     public entry fun add_estimate(user: &signer, seller: address, index: u64, price: u64, description: String, timestamp: u64) acquires Listings { //, attached_documents: vector<String>)  {
