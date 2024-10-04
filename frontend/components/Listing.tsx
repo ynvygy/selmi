@@ -23,6 +23,8 @@ const moduleName = import.meta.env.REACT_APP_MODULE_NAME;
 
 const provider = new Provider(Network.DEVNET);
 
+const statuses = ['OPEN', 'ACTIVE', 'REJECTED', 'ACCEPTED', 'INACTIVE'];
+
 interface Listing {
   price: number;
   description: string;
@@ -41,6 +43,8 @@ export function Listing() {
   const navigate = useNavigate();
   const { account, signAndSubmitTransaction } = useWallet();
   const [listing, setListing] = useState<Listing>({})
+
+  const [newStatus, setNewStatus] = useState<string>(listing.status);
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -87,7 +91,6 @@ export function Listing() {
     setLoading(true);
     setError(null);
 
-    const finalUserPrompt = listing.description + userPrompt
     /*
     const ai_result = await api.chat.completions.create({
       model: "togethercomputer/CodeLlama-34b-Instruct",
@@ -118,7 +121,7 @@ export function Listing() {
        data: {
          function: `${moduleAddress}::${moduleName}::add_ai_estimate`,
          type_arguments: [],
-         functionArguments: [address, index, "mistralai/Mistral-7B-Instruct-v0.2", finalUserPrompt, response, getCurrentTimestamp()],
+         functionArguments: [address, index, "mistralai/Mistral-7B-Instruct-v0.2", listing.description, response, getCurrentTimestamp()],
        }
      }
 
@@ -383,6 +386,42 @@ export function Listing() {
     }
   };
 
+  const handleStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setNewStatus(event.target.value);
+  };
+
+  const handleStatusSave = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!account) return;
+
+    setLoading(true);
+    setError(null);
+
+    setListing({ ...listing, status: newStatus });
+    console.log('Status updated to:', newStatus);
+
+    const transaction:InputTransactionData = {
+       data: {
+         function: `${moduleAddress}::${moduleName}::change_listing_status`,
+         type_arguments: [],
+         functionArguments: [index, newStatus],
+       }
+     }
+
+    try {
+      const response = await signAndSubmitTransaction(transaction);
+
+      await provider.waitForTransaction(transaction.hash);
+      setDescription('');
+      alert('Offer status changed successfully');
+    } catch (err) {
+      console.error('Error changing offer status:', err);
+      setError('Failed to change offer status. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchListing();
   }, [account]);
@@ -430,10 +469,31 @@ export function Listing() {
               <p>No photos available.</p>
             )}
           </div>
-          <h3 className="text-xl font-bold mb-2">Title</h3>
-          <p className="mb-4">Description:</p>
+          <p className="mb-4">Description: {listing.description}</p>
+          <p className="mb-4">Price: {listing.price}</p>
+          <div className="flex flex-col items-center bg-white shadow-md rounded-lg w-[25%]">
+            <div className="flex flex-col w-full">
+              <select
+                value={newStatus}
+                onChange={handleStatusChange}
+                className="mb-2 p-2 border border-gray-300 rounded"
+              >
+                {statuses.map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={handleStatusSave}
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              >
+                Save Status
+              </button>
+            </div>
+          </div>
         </div>
-        <div className="w-[25%]">
+        <div className="w-[20%] mr-[5%]">
           {addEstimate && (
             <>
                 <label className="block mb-2" htmlFor="price">Price</label>
@@ -532,7 +592,7 @@ export function Listing() {
                     id="price"
                     className="border border-gray-300 p-2 mb-4 w-full"
                     placeholder="Enter price"
-                    value={offerLegalOfferPrice}
+                    value={legalOfferPrice}
                     onChange={handleLegalOfferPriceChange}
                 />
 
@@ -616,30 +676,31 @@ export function Listing() {
                       combination.type === 'ai_estimation' ?
                       (<>
                         <p className="font-semibold">{timestampConverter(combination.timestamp)}</p>
-                        <p className="font-semibold">{combination.input}</p>
-                        <p className="italic">Result: {combination.result}</p>
+                        <p className="italic">The '{combination.ai_name}' AI</p>
+                        <p className="italic">Using the following input '{combination.input}'</p>
+                        <p className="italic">Estimated the price to be: {combination.result}</p>
                       </>) : combination.type === 'estimation' ?
                       (<>
                         <p className="font-semibold">{timestampConverter(combination.timestamp)}</p>
-                        <p className="font-semibold">{combination.company}</p>
-                        <p>{combination.description}</p>
-                        <p className="italic">Price: {combination.price}</p>
+                        <p className="italic">The company using the address '{combination.company}'</p>
+                        <p className="italic">Left the following comment '{combination.description}'</p>
+                        <p className="italic">Estimated the price to be: {combination.price}</p>
                       </>) : combination.type === 'review' ?
                       (<>
                         <p className="font-semibold">{timestampConverter(combination.timestamp)}</p>
-                        <p>{combination.description}</p>
-                        <p className="italic">Rating: {combination.rating}</p>
+                        <p className="italic">A user visited the flat and reviewed it as '{combination.description}'</p>
+                        <p className="italic">The user also rated the flat: '{combination.rating} / 5'</p>
                       </>) : combination.type === 'offer' ?
                       (<>
                         <p className="font-semibold">{timestampConverter(combination.timestamp)}</p>
-                        <p>{combination.status}</p>
-                        <p className="italic">Price: {combination.price}</p>
+                        <p className="italic">An offer was made, that has the current status: '{combination.status}'</p>
+                        <p className="italic">The price offer was: {combination.price}</p>
                       </>) : combination.type === 'legal_offer' ?
                       (<>
                         <p className="font-semibold">{timestampConverter(combination.timestamp)}</p>
-                        <p className="font-semibold">{combination.address}</p>
-                        <p>{combination.status}</p>
-                        <p className="italic">Price: {combination.price}</p>
+                        <p className="italic">The company using the address '{combination.company}' made a legal offer</p>
+                        <p className="italic">The current status: '{combination.status}'</p>
+                        <p className="italic">The company wants a fee of: '{combination.price}'</p>
                       </>) : (<></>)
                     }
 

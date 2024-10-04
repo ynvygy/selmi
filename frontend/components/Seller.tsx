@@ -69,7 +69,8 @@ export const Seller: React.FC<SellerProps> = ({provider, moduleAddress, moduleNa
 
   const fetchListings = async () => {
     if (!account) return;
-
+    const allListings: Listing[] = [];
+    let ownerAddress = account.address;
     try {
       const result: Listing[] = await provider.view({
         function: `${moduleAddress}::${moduleName}::get_user_listings`,
@@ -77,8 +78,15 @@ export const Seller: React.FC<SellerProps> = ({provider, moduleAddress, moduleNa
         arguments: [account.address],
       });
 
-      console.log(result);
-      setListings(result[0]);
+      const listingsWithOwner = result[0].map((listing, index) => ({
+        ...listing,
+        ownerAddress,
+        index,
+      }));
+
+      allListings.push(...listingsWithOwner);
+
+      setListings(allListings);
     } catch (error) {
       console.error('Error fetching companies:', error);
     }

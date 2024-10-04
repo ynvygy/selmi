@@ -84,7 +84,6 @@ export const Buyer: React.FC<BuyerProps> = ({provider, moduleAddress, moduleName
       });
 
       const ownersList = result.map((element) => element[0]);
-
       setOwners(ownersList);
       await fetchAllListings(ownersList);
     } catch (error) {
@@ -102,7 +101,13 @@ export const Buyer: React.FC<BuyerProps> = ({provider, moduleAddress, moduleName
           type_arguments: [],
           arguments: [ownerAddress],
         });
-        allListings.push(...userListings[0]);
+        const listingsWithOwner = userListings[0].map((listing, index) => ({
+          ...listing,
+          ownerAddress,
+          index,
+        }));
+
+        allListings.push(...listingsWithOwner);
       }
 
       setListings(allListings);

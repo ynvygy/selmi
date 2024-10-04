@@ -10,6 +10,7 @@ import { getAccountAPTBalance } from "@/view-functions/getAccountBalance";
 import { transferAPT } from "@/entry-functions/transferAPT";
 
 interface Company {
+  name: string;
   description: string;
   documents: Document[];
   reviews: Review[];
@@ -29,18 +30,29 @@ export const CompanyCard: React.FC<Company> = ({ company }) => {
     }
   };
 
-  return (
-    <div className="flex items-center justify-center">
-      <p>
-        Your company's info
-      </p>
-      <p>
-        {company.description}
-      </p>
-      <p>
-        {rating}
-      </p>
-    </div>
+  const renderStars = (rating: number) => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        <span key={i} className={`text-${i <= rating ? 'yellow-400' : 'gray-300'}`}>
+          ★
+        </span>
+      );
+    }
+    return stars;
+  };
 
+  return (
+    <div className="flex flex-col items-center justify-center p-4 bg-white shadow-md rounded-lg">
+      <h2 className="text-xl font-semibold mb-2">Your Company's Info</h2>
+      <p className="text-gray-700 text-center mb-4">{company.name}</p>
+      <p className="text-gray-700 text-center mb-4">{company.description}</p>
+      <div className="flex items-center">
+        <div className="flex text-lg">
+          {renderStars(rating)}
+        </div>
+        <span className="ml-2 text-gray-600">{rating.toFixed(1)}</span>
+      </div>
+    </div>
   );
 }
