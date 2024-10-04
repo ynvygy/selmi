@@ -21,18 +21,12 @@ interface Listing {
   price: number;
   description: string;
   status: string;
-  documents: Document[];
   photos: string[];
   offers: Offer[];
   estimates: Estimation[];
   ai_estimates: AiEstimation[];
   legal_offers: CompanyOffer[];
   legal_operator: string;
-}
-
-interface Document {
-  description: string;
-  link: string;
 }
 
 interface Offer {
@@ -45,7 +39,6 @@ interface Estimation {
   company: string;
   price: number;
   description: string;
-  attached_documents: Document[];
 }
 
 interface AiEstimation {

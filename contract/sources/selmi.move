@@ -27,7 +27,6 @@ module selmi::selmi {
         price: u64,
         description: String,
         status: String,
-        documents: vector<Document>,
         photos: vector<String>,
         offers: vector<Offer>,
         estimates: vector<Estimation>,
@@ -46,15 +45,9 @@ module selmi::selmi {
         addresses: smart_vector::SmartVector<address>
     }
 
-    struct Document has store, copy {
-        description: String,
-        link: String
-    }
-
     struct Company has key, copy, store {
         name: String,
         description: String,
-        documents: vector<Document>,
         reviews: vector<Review>,
         timestamp: u64,
     }
@@ -70,7 +63,6 @@ module selmi::selmi {
         company: address,
         price: u64,
         description: String,
-        attached_documents: vector<Document>,
         timestamp: u64,
     }
 
@@ -192,7 +184,6 @@ module selmi::selmi {
             estimates: vector::empty(),
             ai_estimates: vector::empty(),
             legal_offers: vector::empty(),
-            documents: vector::empty(),
             legal_operator: user_address,
             photos: photos,
             timestamp: timestamp,
@@ -222,7 +213,6 @@ module selmi::selmi {
         let new_company = Company {
             name: name,
             description: description,
-            documents: vector::empty<Document>(),
             reviews: vector::empty<Review>(),
             timestamp: timestamp,
         };
@@ -251,7 +241,7 @@ module selmi::selmi {
         vector::push_back(&mut listing.reviews, review);
     }
 
-    public entry fun add_estimate(user: &signer, seller: address, index: u64, price: u64, description: String, timestamp: u64) acquires Listings { //, attached_documents: vector<String>)  {
+    public entry fun add_estimate(user: &signer, seller: address, index: u64, price: u64, description: String, timestamp: u64) acquires Listings {
         let listings = borrow_global_mut<Listings>(seller);
         let listing = smart_vector::borrow_mut(&mut listings.listings, index);
 
@@ -262,7 +252,6 @@ module selmi::selmi {
             company: company_address,
             price: price,
             description: description,
-            attached_documents: vector::empty(),
             timestamp: timestamp,
         };
 

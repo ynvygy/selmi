@@ -17,7 +17,6 @@ interface ListingListProps {
     price: number;
     description: string;
     status: string;
-    documents: Document[];
     photos: string[];
     offers: Offer[];
     estimates: Estimation[];
@@ -31,11 +30,6 @@ interface ListingListProps {
   seller: boolean
 }
 
-interface Document {
-  description: string;
-  link: string;
-}
-
 export const ListingList: React.FC<ListingListPropsProps> = ({ listings, provider, moduleAddress, moduleName, seller }) => {
   const navigate = useNavigate();
 
@@ -43,7 +37,6 @@ export const ListingList: React.FC<ListingListPropsProps> = ({ listings, provide
   const [description, setDescription] = useState<string>('');
   const [images, setImages] = useState<[]>([]);
 
-  const [documents, setDocuments] = useState<Document[]>([]);
   const [docDescription, setDocDescription] = useState<string>('');
   const [docLink, setDocLink] = useState<string>('');
 
@@ -98,30 +91,6 @@ export const ListingList: React.FC<ListingListPropsProps> = ({ listings, provide
       setLoading(false);
     }
   };
-
-  const handleUploadDocument = async (event) => {
-    event.preventDefault()
-    console.log(1)
-    console.log(docDescription)
-    if (docDescription /*&& docLink*/) {
-      setDocuments((prevDocuments) => [
-        ...prevDocuments,
-        { description: docDescription, link: "public/demo pdf.pdf" },
-      ]);
-      setDocDescription('');
-      setDocLink('');
-      console.log(documents);
-    }
-    //const file = event.target.files[0]
-    //if (typeof file !== 'undefined') {
-    //  try {
-    //    const result = await client.add(file)
-    //    console.log(result)
-    //  } catch (error){
-    //    console.log("ipfs image upload error: ", error)
-    //  }
-    //}
-  }
 
   const handleUploadImage = async (event) => {
     event.preventDefault()
@@ -202,38 +171,6 @@ export const ListingList: React.FC<ListingListPropsProps> = ({ listings, provide
                 </ul>
               </div>) : (<></>)
             }
-
-            <div className="form-group">
-              <label htmlFor="docDescription">Document Description:</label>
-              <input
-                type="text"
-                id="docDescription"
-                value={docDescription}
-                onChange={(e) => setDocDescription(e.target.value)}
-              />
-            </div>
-            {documents.length > 0 ? (
-              <div className="form-group">
-                <p>Attached Documents:</p>
-                <ul>
-                  {documents.map((document, index) => (
-                    <li key={index}>
-                      <p>{document.link}</p>
-                    </li>
-                  ))}
-                </ul>
-              </div>) : (<></>)
-            }
-            <div className="mb-3">
-              <label>Upload Document:</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(event) => handleUploadDocument(event)}
-                className="form-control"
-              />
-            </div>
-            {error && <p className="error-message">{error}</p>}
             <button type="submit" disabled={loading} className="submit-button">
               {loading ? 'Creating...' : 'Create Listing'}
             </button>

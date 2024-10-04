@@ -9,14 +9,15 @@ import { Input } from "@/components/ui/input";
 import { getAccountAPTBalance } from "@/view-functions/getAccountBalance";
 import { transferAPT } from "@/entry-functions/transferAPT";
 import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
-import { OpenAI } from "openai";
 import { useParams } from 'react-router-dom';
 import { Provider, Network } from "aptos";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const BASE_URL = import.meta.env.REACT_APP_BASE_URL;
-const API_KEY = import.meta.env.REACT_APP_API_KEY;
 const systemPrompt = "You are a real estate agent. Analyze and give me the exact price";
 const userPrompt = "Give me just the price, don't write anything else";
+const GEMINI_KEY = import.meta.env.REACT_APP_GEMINI_KEY;
+const firstPrompt = 'You are a real estate agent. Analyze and give me an approximate price, not a range.'
+const lastPrompt = "Give me just the price in dollars, don't write anything else."
 
 const moduleAddress = import.meta.env.REACT_APP_MODULE_ADDRESS;
 const moduleName = import.meta.env.REACT_APP_MODULE_NAME;
@@ -29,7 +30,6 @@ interface Listing {
   price: number;
   description: string;
   status: string;
-  documents: Document[];
   photos: string[];
   offers: Offer[];
   estimates: Estimation[];
@@ -65,12 +65,6 @@ export function Listing() {
   const [addLegalOffer, setAddLegalOffer] = useState(false);
   const [legalOfferPrice, setLegalOfferPrice] = useState(0);
 
-  const api = new OpenAI({
-    apiKey: import.meta.env.REACT_APP_API_KEY,
-    baseUrl: import.meta.env.REACT_APP_BASE_URL,
-    dangerouslyAllowBrowser: true
-  });
-
   const getCurrentTimestamp = (): number => {
     const currentDate = new Date();
     return Math.floor(currentDate.getTime() / 1000);
@@ -86,7 +80,7 @@ export function Listing() {
 
   const fetchAiEstimate = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!account) return;
+    //if (!account) return;
 
     setLoading(true);
     setError(null);
@@ -113,15 +107,27 @@ export function Listing() {
     //console.log(response)
     //console.log("User:", userPrompt);
     //console.log("AI:", response);
+    /*
     const min = 50000;
     const max = 200000;
     const response = Math.floor(Math.random() * (max - min + 1)) + min;
+    */
 
+    const genAI = new GoogleGenerativeAI(GEMINI_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    //const prompt = firstPrompt + listing.description + lastPrompt;
+    const prompt = firstPrompt + listing.description + lastPrompt
+
+    const result = await model.generateContent(prompt);
+
+    const response = result.response.text()
+    console.log(response);
     const transaction:InputTransactionData = {
        data: {
          function: `${moduleAddress}::${moduleName}::add_ai_estimate`,
          type_arguments: [],
-         functionArguments: [address, index, "mistralai/Mistral-7B-Instruct-v0.2", listing.description, response, getCurrentTimestamp()],
+         functionArguments: [address, index, "gemini-1.5-flash", listing.description, response, getCurrentTimestamp()],
        }
      }
 
@@ -608,43 +614,43 @@ export function Listing() {
         <div className="w-[25%]">
           <div className="flex flex-col">
             <button
-              className="w-[50%] bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+              className="w-[60%] bg-blue-400 text-white py-2 rounded hover:bg-blue-600 mb-1"
               onClick={fetchAiEstimate}
             >
               Add AI Estimate
             </button>
             <button
-              className="w-[50%] bg-green-500 text-white py-2 rounded hover:bg-green-600"
+              className="w-[60%] bg-green-500 text-white py-2 rounded hover:bg-green-600 mb-1"
               onClick={toggleEstimate}
             >
               Add Estimate
             </button>
             <button
-              className="w-[50%] bg-yellow-500 text-white py-2 rounded hover:bg-yellow-600"
+              className="w-[60%] bg-yellow-500 text-white py-2 rounded hover:bg-yellow-600 mb-1"
               onClick={toggleReview}
             >
               Add Review
             </button>
             <button
-              className="w-[50%] bg-purple-500 text-white py-2 rounded hover:bg-purple-600"
+              className="w-[60%] bg-purple-400 text-white py-2 rounded hover:bg-purple-600 mb-1"
               onClick={toggleOffer}
             >
               Add Offer
             </button>
             <button
-              className="w-[50%] bg-red-500 text-white py-2 rounded hover:bg-red-600"
+              className="w-[60%] bg-red-400 text-white py-2 rounded hover:bg-red-600 mb-1"
               onClick={toggleLegalOffer}
             >
               Add Legal Offer
             </button>
             <button
-              className="w-[50%] bg-teal-500 text-white py-2 rounded hover:bg-teal-600"
+              className="w-[60%] bg-teal-500 text-white py-2 rounded hover:bg-teal-600"
               onClick={changeOfferStatus}
             >
               Save Offer Status
             </button>
             <button
-              className="w-[50%] bg-indigo-500 text-white py-2 rounded hover:bg-indigo-600"
+              className="w-[60%] bg-indigo-500 text-white py-2 rounded hover:bg-indigo-600"
               onClick={changeLegalOfferStatus}
             >
               Save Legal Offer Status

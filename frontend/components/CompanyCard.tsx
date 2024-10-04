@@ -12,7 +12,6 @@ import { transferAPT } from "@/entry-functions/transferAPT";
 interface Company {
   name: string;
   description: string;
-  documents: Document[];
   reviews: Review[];
 }
 

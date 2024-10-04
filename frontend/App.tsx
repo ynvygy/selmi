@@ -14,9 +14,6 @@ import { MessageBoard } from "@/components/MessageBoard";
 import { Seller } from "@/components/Seller";
 import { Buyer } from "@/components/Buyer";
 import { Company } from "@/components/Company";
-import { MyProperties } from "@/components/MyProperties";
-import { Marketplace } from "@/components/Marketplace";
-import { MyCompany } from "@/components/MyCompany";
 import { Listing } from "@/components/Listing";
 
 const MODULE_ADDRESS = import.meta.env.REACT_APP_MODULE_ADDRESS;
@@ -59,7 +56,6 @@ function App() {
 
   interface MyCompany {
     description: string;
-    documents: Document[];
     reviews: Review[];
   }
 
@@ -77,9 +73,6 @@ function App() {
           <Route path="/seller" element={<Seller provider={provider} moduleAddress={MODULE_ADDRESS} moduleName={MODULE_NAME}/>} />
           <Route path="/buyer" element={<Buyer provider={provider} moduleAddress={MODULE_ADDRESS} moduleName={MODULE_NAME}/>} />
           <Route path="/company" element={<Company provider={provider} moduleAddress={MODULE_ADDRESS} moduleName={MODULE_NAME}/>} />
-          <Route path="/myproperties" element={<MyProperties />} />
-          <Route path="/marketplace" element={<Marketplace />} />
-          <Route path="/mycompany" element={<MyCompany />} />
           <Route path="/listings/:address/:index" element={<Listing />} />
         </Routes>
       </Router>
