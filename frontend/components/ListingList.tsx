@@ -114,6 +114,10 @@ export const ListingList: React.FC<ListingListPropsProps> = ({ listings, provide
     console.log(listings[0])
   }
 
+  useEffect(() => {
+    console.log('Listings updated:', listings);
+  }, [listings]);
+
   return (
     <div className="h-[20%] w-[60%]">
       <div className="listing-list pl-[50%] mb-[5%] mt-[5%]">

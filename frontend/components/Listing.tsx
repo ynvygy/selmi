@@ -17,7 +17,7 @@ import { PinataSDK } from "pinata-web3";
 const systemPrompt = "You are a real estate agent. Analyze and give me the exact price";
 const userPrompt = "Give me just the price, don't write anything else";
 const GEMINI_KEY = import.meta.env.REACT_APP_GEMINI_KEY;
-const firstPrompt = 'You are a real estate agent. Analyze and give me an approximate price, not a range.'
+const firstPrompt = 'You are a master seller of everything. Analyze and give me an approximate price, not a range.'
 const lastPrompt = "Give me just the price in dollars, don't write anything else."
 
 const moduleAddress = import.meta.env.REACT_APP_MODULE_ADDRESS;
@@ -198,7 +198,12 @@ export function Listing() {
   };
 
   const handleReviewRatingChange = async (e) => {
-      setReviewRating(e.target.value);
+    const value = Number(event.target.value);
+    if (value >= 1 && value <= 5) {
+        setReviewRating(value);
+    } else if (event.target.value === '') {
+        setReviewRating('');
+    }
   };
 
   const toggleReview = async (event) => {
@@ -230,8 +235,7 @@ export function Listing() {
       setDescription('');
       alert('Review created successfully');
     } catch (err) {
-      console.error('Error creating review:', err);
-      setError('Failed to create review. Please try again.');
+      fetchListing()
     } finally {
       setLoading(false);
     }
@@ -274,8 +278,7 @@ export function Listing() {
       setDescription('');
       alert('Offer created successfully');
     } catch (err) {
-      console.error('Error creating offer:', err);
-      setError('Failed to create offer. Please try again.');
+      fetchListing()
     } finally {
       setLoading(false);
     }
@@ -303,7 +306,7 @@ export function Listing() {
        data: {
          function: `${moduleAddress}::${moduleName}::add_company_offer`,
          type_arguments: [],
-         functionArguments: [account.address, 0, 100, getCurrentTimestamp() ],
+         functionArguments: [address, index, legalOfferPrice, getCurrentTimestamp() ],
        }
      }
 
@@ -314,8 +317,7 @@ export function Listing() {
       setDescription('');
       alert('Legal offer created successfully');
     } catch (err) {
-      console.error('Error creating legal offer:', err);
-      setError('Failed to create legal offer. Please try again.');
+      fetchListing()
     } finally {
       setLoading(false);
     }
@@ -431,8 +433,6 @@ export function Listing() {
     if (!listing.photos || listing.photos.length == 0) return;
     if (photos.length > 0) return;
 
-    const photosDiv = document.getElementById('photosDiv');
-
     for (const cid of listing.photos) {
       try {
         const data = await pinata.gateways.get(cid);
@@ -451,7 +451,7 @@ export function Listing() {
   const getReviewRating = (reviews) => {
     if (!listing.reviews || listing.reviews.length === 0) return; // Handle case with no reviews
 
-    const total = listing.reviews.reduce((sum, review) => sum + review.rating, 0); // Sum the ratings
+    const total = listing.reviews.reduce((sum, review) => sum + parseInt(review.rating), 0); // Sum the ratings
     setRating(total / listing.reviews.length);
   };
 
@@ -471,11 +471,11 @@ export function Listing() {
   const orderListingItems = async () => {
     if (listing) {
       const combined = [
-          ...listing.offers.map(offer => ({ ...offer, type: 'offer', idx: index })),
-          ...listing.estimates.map(est => ({ ...est, type: 'estimation', idx: index })),
-          ...listing.ai_estimates.map(aiEst => ({ ...aiEst, type: 'ai_estimation', idx: index })),
-          ...listing.reviews.map(review => ({ ...review, type: 'review', idx: index })),
-          ...listing.legal_offers.map(legalOffer => ({ ...legalOffer, type: 'legal_offer', idx: index }))
+        ...listing.offers.map((offer, idx) => ({ ...offer, type: 'offer', idx })),
+        ...listing.estimates.map((est, idx) => ({ ...est, type: 'estimation', idx })),
+        ...listing.ai_estimates.map((aiEst, idx) => ({ ...aiEst, type: 'ai_estimation', idx })),
+        ...listing.reviews.map((review, idx) => ({ ...review, type: 'review', idx })),
+        ...listing.legal_offers.map((legalOffer, idx) => ({ ...legalOffer, type: 'legal_offer', idx }))
       ];
 
       // Sort by timestamp
@@ -558,7 +558,7 @@ export function Listing() {
           )}
           {addReview && (
             <>
-                <label className="block mb-2" htmlFor="price">Description</label>
+                <label className="block mb-2" htmlFor="description">Description</label>
                 <input
                     type="text"
                     id="description"
@@ -568,7 +568,7 @@ export function Listing() {
                     onChange={handleReviewDescriptionChange}
                 />
 
-                <label className="block mb-2" htmlFor="description">Rating</label>
+                <label className="block mb-2" htmlFor="rating">Rating</label>
                 <input
                     type="number"
                     id="rating"
@@ -590,7 +590,7 @@ export function Listing() {
           )}
           {addOffer && (
             <>
-                <label className="block mb-2" htmlFor="price">Description</label>
+                <label className="block mb-2" htmlFor="description">Description</label>
                 <input
                     type="text"
                     id="description"
@@ -737,6 +737,8 @@ export function Listing() {
                       (<>
                         <p className="font-semibold">{timestampConverter(combination.timestamp)}</p>
                         <p className="italic">The company using the address '{combination.name}' made a legal offer</p>
+                        <p className="italic">The company wants a fee of: '{combination.price}'</p>
+                        <p>{combination.idx}</p>
                         {combination.status === 'ACTIVE' ? (
                           <div className="flex space-x-4 mt-4">
                             <button
@@ -754,7 +756,6 @@ export function Listing() {
                           </div>
                         ) :
                         <p className="italic">The offer was: {combination.status}</p>}
-                        <p className="italic">The company wants a fee of: '{combination.price}'</p>
                       </>) : (<></>)
                     }
 

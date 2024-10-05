@@ -189,8 +189,8 @@ export const Company: React.FC<CompanyProps> = ({provider, moduleAddress, module
         {company ? (
           <>
             <ListingList listings={listings} provider={provider} moduleAddress={moduleAddress} moduleName={moduleName} seller={seller} />
-            <div className="h-[20%] w-[60%]">
-              <div className="listing-list pl-[50%] mt-[5%] mr-[5%]">
+            <div className="h-[20%] w-[40%]">
+              <div className="listing-list pl-[40%] mt-[5%] mr-[5%]">
                 <div className="listing-card" style={{ cursor: 'pointer' }}>
                   <CompanyCard company={company} />
                 </div>
