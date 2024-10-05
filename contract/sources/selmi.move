@@ -303,12 +303,13 @@ module selmi::selmi {
         })
     }
 
-    public entry fun change_offer_status(user: &signer, index: u64, status: String) acquires Listings {
+    public entry fun change_offer_status(user: &signer, listing_index: u64, offer_index: u64, status: String) acquires Listings {
         let user_address = signer::address_of(user);
         let listings = borrow_global_mut<Listings>(user_address);
-        let listing = smart_vector::borrow_mut(&mut listings.listings, index);
+        let listing = smart_vector::borrow_mut(&mut listings.listings, listing_index);
 
-        listing.status = status;
+        let offer = vector::borrow_mut(&mut listing.offers, offer_index);
+        offer.status = status;
 
         event::emit(ListingStatusChange {
             owner_address: user_address,

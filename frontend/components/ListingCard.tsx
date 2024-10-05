@@ -19,7 +19,7 @@ interface ListingCardProps {
 
 export const ListingCard: React.FC<ListingCardProps> = ({ address, index, price, description }) => {
   const navigate = useNavigate();
-
+  
   const handleClick = () => {
     navigate(`/listings/${address}/${index}`);
   };

@@ -10,6 +10,7 @@ import { getAccountAPTBalance } from "@/view-functions/getAccountBalance";
 import { transferAPT } from "@/entry-functions/transferAPT";
 import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import { ListingCard } from "@/components/ListingCard"
+import { PinataSDK } from "pinata-web3";
 
 interface ListingListProps {
   listings: {
@@ -47,16 +48,11 @@ export const ListingList: React.FC<ListingListPropsProps> = ({ listings, provide
 
   const projectId = import.meta.env.REACT_APP_PROJECT_ID;
   const projectSecret = import.meta.env.REACT_APP_PROJECT_SECRET;
-  //const auth = 'Basic ' + Buffer.from(projectId + ':' + projectSecret).toString('base64');
-  //const client = create({
-  //  host: 'ipfs.infura.io',
-  //  port: 5001,
-  //  protocol: 'https',
-  //  apiPath: '/api/v0',
-  //  headers: {
-  //    authorization: auth,
-  //  }
-  //})
+
+  const pinata = new PinataSDK({
+    pinataJwt: import.meta.env.REACT_APP_PINATA_JWT,
+    pinataGateway: import.meta.env.REACT_APP_PINATA_GATEWAY,
+  });
 
   const getCurrentTimestamp = (): number => {
     const currentDate = new Date();
@@ -69,6 +65,9 @@ export const ListingList: React.FC<ListingListPropsProps> = ({ listings, provide
 
     setLoading(true);
     setError(null);
+    console.log(description)
+    console.log(price)
+    console.log(images)
     const transaction:InputTransactionData = {
        data: {
          function: `${moduleAddress}::${moduleName}::create_listing`,
@@ -94,18 +93,20 @@ export const ListingList: React.FC<ListingListPropsProps> = ({ listings, provide
 
   const handleUploadImage = async (event) => {
     event.preventDefault()
-    setImages((prevImages) => [...prevImages, "public/watch.jpeg"]);
+    //setImages((prevImages) => [...prevImages, "public/watch.jpeg"]);
 
     console.log(images);
-    //const file = event.target.files[0]
-    //if (typeof file !== 'undefined') {
-    //  try {
-    //    const result = await client.add(file)
-    //    console.log(result)
-    //  } catch (error){
-    //    console.log("ipfs image upload error: ", error)
-    //  }
-    //}
+    const file = event.target.files[0]
+      if (typeof file !== 'undefined') {
+      try {
+        const uploading_file = new File([file], "test.png", { type: "image/png" });
+        const upload = await pinata.upload.file(uploading_file);
+        console.log(upload)
+        setImages((prevImages) => [...prevImages, upload.IpfsHash]);
+      } catch (error){
+        console.log("ipfs image upload error: ", error)
+      }
+    }
   }
 
   const toggleListing = async (event) => {
@@ -123,6 +124,7 @@ export const ListingList: React.FC<ListingListPropsProps> = ({ listings, provide
             index={listing.index}
             price={listing.price}
             description={listing.description}
+            photo={listing.photos[0]}
             //seller={seller}
           />
         ))}
@@ -161,11 +163,11 @@ export const ListingList: React.FC<ListingListPropsProps> = ({ listings, provide
             </div>
             {images.length > 0 ? (
               <div className="form-group">
-                <p>Attached Images:</p>
+                <p>Attached images ids:</p>
                 <ul>
                   {images.map((image, index) => (
                     <li key={index}>
-                      <p>{image}</p>
+                      <p>{image.slice(0,25)}</p>
                     </li>
                   ))}
                 </ul>

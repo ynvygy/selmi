@@ -12,6 +12,7 @@ import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-route
 import { useParams } from 'react-router-dom';
 import { Provider, Network } from "aptos";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { PinataSDK } from "pinata-web3";
 
 const systemPrompt = "You are a real estate agent. Analyze and give me the exact price";
 const userPrompt = "Give me just the price, don't write anything else";
@@ -43,6 +44,8 @@ export function Listing() {
   const navigate = useNavigate();
   const { account, signAndSubmitTransaction } = useWallet();
   const [listing, setListing] = useState<Listing>({})
+  const [photos, setPhotos] = useState([])
+  const [rating, setRating] = useState(0)
 
   const [newStatus, setNewStatus] = useState<string>(listing.status);
 
@@ -64,6 +67,11 @@ export function Listing() {
 
   const [addLegalOffer, setAddLegalOffer] = useState(false);
   const [legalOfferPrice, setLegalOfferPrice] = useState(0);
+
+  const pinata = new PinataSDK({
+    pinataJwt: import.meta.env.REACT_APP_PINATA_JWT,
+    pinataGateway: import.meta.env.REACT_APP_PINATA_GATEWAY,
+  });
 
   const getCurrentTimestamp = (): number => {
     const currentDate = new Date();
@@ -137,9 +145,6 @@ export function Listing() {
       await provider.waitForTransaction(transaction.hash);
       setDescription('');
       alert('Listing created successfully!');
-    } catch (err) {
-      console.error('Error creating listing:', err);
-      setError('Failed to create listing. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -171,7 +176,7 @@ export function Listing() {
        data: {
          function: `${moduleAddress}::${moduleName}::add_estimate`,
          type_arguments: [],
-         functionArguments: [account.address, 0, 99999, "description", getCurrentTimestamp() ],
+         functionArguments: [account.address, index, estimatedPrice, estimatedDescription, getCurrentTimestamp() ],
        }
      }
 
@@ -182,8 +187,7 @@ export function Listing() {
       setDescription('');
       alert('Estimation created successfully');
     } catch (err) {
-      console.error('Error creating estimation:', err);
-      setError('Failed to create estimation. Please try again.');
+      fetchListing()
     } finally {
       setLoading(false);
     }
@@ -317,18 +321,16 @@ export function Listing() {
     }
   }
 
-  const changeOfferStatus = async (event: React.FormEvent) => {
-    event.preventDefault();
+  const changeOfferStatus = async (status, idx) => {
     if (!account) return;
 
     setLoading(true);
     setError(null);
-
     const transaction:InputTransactionData = {
        data: {
          function: `${moduleAddress}::${moduleName}::change_offer_status`,
          type_arguments: [],
-         functionArguments: [0, "status" ],
+         functionArguments: [index, idx, status],
        }
      }
 
@@ -338,16 +340,14 @@ export function Listing() {
       await provider.waitForTransaction(transaction.hash);
       setDescription('');
       alert('Offer status changed successfully');
-    } catch (err) {
-      console.error('Error changing offer status:', err);
-      setError('Failed to change offer status. Please try again.');
+    } catch(err) {
+      fetchListing()
     } finally {
       setLoading(false);
     }
   }
 
-  const changeLegalOfferStatus = async (event: React.FormEvent) => {
-    event.preventDefault();
+  const changeLegalOfferStatus = async (status, idx) => {
     if (!account) return;
 
     setLoading(true);
@@ -357,7 +357,7 @@ export function Listing() {
        data: {
          function: `${moduleAddress}::${moduleName}::change_company_offer_status`,
          type_arguments: [],
-         functionArguments: [ 0, 0, "status" ],
+         functionArguments: [ index, idx, status ],
        }
      }
 
@@ -368,8 +368,7 @@ export function Listing() {
       setDescription('');
       alert('Legal offer status changed successfully');
     } catch (err) {
-      console.error('Error changing legal offer status:', err);
-      setError('Failed to change legal offer status. Please try again.');
+      fetchListing()
     } finally {
       setLoading(false);
     }
@@ -428,6 +427,34 @@ export function Listing() {
     }
   };
 
+  const filesImagesDownload = async (event) => {
+    if (!listing.photos || listing.photos.length == 0) return;
+    if (photos.length > 0) return;
+
+    const photosDiv = document.getElementById('photosDiv');
+
+    for (const cid of listing.photos) {
+      try {
+        const data = await pinata.gateways.get(cid);
+
+        const response = { data: data.data, contentType: 'image/webp' };
+
+        const imageUrl = URL.createObjectURL(response.data);
+
+        setPhotos((prevPhotos) => [...prevPhotos, imageUrl]);
+      } catch (error) {
+        console.log("Error fetching or displaying image:", error);
+      }
+    }
+  }
+
+  const getReviewRating = (reviews) => {
+    if (!listing.reviews || listing.reviews.length === 0) return; // Handle case with no reviews
+
+    const total = listing.reviews.reduce((sum, review) => sum + review.rating, 0); // Sum the ratings
+    setRating(total / listing.reviews.length);
+  };
+
   useEffect(() => {
     fetchListing();
   }, [account]);
@@ -436,6 +463,9 @@ export function Listing() {
     if (listing.description) {
       orderListingItems();
     }
+    setNewStatus(listing.status)
+    filesImagesDownload();
+    getReviewRating()
   }, [listing]);
 
   const orderListingItems = async () => {
@@ -461,15 +491,10 @@ export function Listing() {
         <div className="w-[50%]">
           <h3 className="text-lg font-semibold mb-2">Photos</h3>
 
-          <div className="grid grid-cols-3 gap-2 mb-4">
+          <div className="grid grid-cols-5 gap-1 mb-1">
             {listing && listing.photos && listing.photos.length > 0 ? (
-              listing.photos.map((photo, index) => (
-                <img
-                  key={index}
-                  src="/watch.jpeg"
-                  alt={`Listing photo ${index + 1}`}
-                  className="w-[50%] h-32 object-cover rounded"
-                />
+              photos.slice(0, 5).map((photo, i) => (
+                <img key={i} src={photo} alt="image-from-api" className="max-w-[100px] h-[100px]"/>
               ))
             ) : (
               <p>No photos available.</p>
@@ -477,6 +502,7 @@ export function Listing() {
           </div>
           <p className="mb-4">Description: {listing.description}</p>
           <p className="mb-4">Price: {listing.price}</p>
+          <p className="mb-4">Current rating: {rating}</p>
           <div className="flex flex-col items-center bg-white shadow-md rounded-lg w-[25%]">
             <div className="flex flex-col w-full">
               <select
@@ -544,10 +570,12 @@ export function Listing() {
 
                 <label className="block mb-2" htmlFor="description">Rating</label>
                 <input
-                    type="text"
+                    type="number"
                     id="rating"
                     className="border border-gray-300 p-2 mb-4 w-full"
-                    placeholder="Enter rating"
+                    placeholder="Enter rating (1 to 5)"
+                    min="1"
+                    max="5"
                     value={reviewRating}
                     onChange={handleReviewRatingChange}
                 />
@@ -643,18 +671,6 @@ export function Listing() {
             >
               Add Legal Offer
             </button>
-            <button
-              className="w-[60%] bg-teal-500 text-white py-2 rounded hover:bg-teal-600"
-              onClick={changeOfferStatus}
-            >
-              Save Offer Status
-            </button>
-            <button
-              className="w-[60%] bg-indigo-500 text-white py-2 rounded hover:bg-indigo-600"
-              onClick={changeLegalOfferStatus}
-            >
-              Save Legal Offer Status
-            </button>
           </div>
         </div>
       </div>
@@ -667,11 +683,11 @@ export function Listing() {
                         : combination.type === 'estimation'
                         ? 'bg-green-200'
                         : combination.type === 'review'
-                        ? 'bg-red-200'
-                        : combination.type === 'offer'
                         ? 'bg-yellow-200'
+                        : combination.type === 'offer'
+                        ? 'bg-purple-200'
                         : combination.type === 'legal_offer'
-                        ? 'bg-brown-200'
+                        ? 'bg-red-200'
                         : 'bg-gray-200';
 
                 return (
@@ -699,13 +715,45 @@ export function Listing() {
                       </>) : combination.type === 'offer' ?
                       (<>
                         <p className="font-semibold">{timestampConverter(combination.timestamp)}</p>
-                        <p className="italic">An offer was made, that has the current status: '{combination.status}'</p>
                         <p className="italic">The price offer was: {combination.price}</p>
+                        {combination.status === 'OPEN' ? (
+                          <div className="flex space-x-4 mt-4">
+                            <button
+                              onClick={() => changeOfferStatus('ACCEPTED', combination.idx)}
+                              className="bg-blue-500 text-white px-4 py-2 rounded"
+                            >
+                              Accept
+                            </button>
+                            <button
+                              onClick={() => changeOfferStatus('REJECTED', combination.idx)}
+                              className="bg-red-500 text-white px-4 py-2 rounded"
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        ) :
+                        <p className="italic">The offer was: {combination.status}</p>}
                       </>) : combination.type === 'legal_offer' ?
                       (<>
                         <p className="font-semibold">{timestampConverter(combination.timestamp)}</p>
-                        <p className="italic">The company using the address '{combination.company}' made a legal offer</p>
-                        <p className="italic">The current status: '{combination.status}'</p>
+                        <p className="italic">The company using the address '{combination.name}' made a legal offer</p>
+                        {combination.status === 'ACTIVE' ? (
+                          <div className="flex space-x-4 mt-4">
+                            <button
+                              onClick={() => changeLegalOfferStatus('ACCEPTED', combination.idx)}
+                              className="bg-blue-500 text-white px-4 py-2 rounded"
+                            >
+                              Accept
+                            </button>
+                            <button
+                              onClick={() => changeLegalOfferStatus('REJECTED', combination.idx)}
+                              className="bg-red-500 text-white px-4 py-2 rounded"
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        ) :
+                        <p className="italic">The offer was: {combination.status}</p>}
                         <p className="italic">The company wants a fee of: '{combination.price}'</p>
                       </>) : (<></>)
                     }
