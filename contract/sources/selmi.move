@@ -1,13 +1,11 @@
 module selmi::selmi {
     use std::signer;
     use std::vector;
-    use std::debug;
-    use std::string::{Self, String, utf8};
+    //use std::debug;
+    use std::string::{String, utf8};
     use aptos_framework::event;
     use std::option;
-    use aptos_token_objects::collection::{Self};
-    use aptos_framework::object;
-    use aptos_token_objects::token::{Self, Token};
+    //use aptos_framework::object;
     use aptos_std::smart_vector;
 
     // Errors
@@ -229,7 +227,7 @@ module selmi::selmi {
         })
     }
 
-    public entry fun add_listing_review(user: &signer, seller: address, index: u64, description: String, rating: u64, timestamp: u64) acquires Listings {
+    public entry fun add_listing_review(_user: &signer, seller: address, index: u64, description: String, rating: u64, timestamp: u64) acquires Listings {
         let listings = borrow_global_mut<Listings>(seller);
         let listing = smart_vector::borrow_mut(&mut listings.listings, index);
 
@@ -266,7 +264,7 @@ module selmi::selmi {
         });
     }
 
-    public entry fun add_ai_estimate(user: &signer, seller: address, index: u64, name: String, input: String, result: String, timestamp: u64) acquires Listings {
+    public entry fun add_ai_estimate(_user: &signer, seller: address, index: u64, name: String, input: String, result: String, timestamp: u64) acquires Listings {
         let listings = borrow_global_mut<Listings>(seller);
         let listing = smart_vector::borrow_mut(&mut listings.listings, index);
 
@@ -313,7 +311,7 @@ module selmi::selmi {
 
         event::emit(ListingStatusChange {
             owner_address: user_address,
-            listing_index: index,
+            listing_index: offer_index,
             new_status: status,
         })
     }
