@@ -210,14 +210,17 @@ textarea {
 
 .background-seller {
   background-color: #FFB3B3;
+  height: 100%;
 }
 
 .background-company {
   background-color: #A9F5F7;
+  height: 100%;
 }
 
 .background-buyer {
   background-color: #C6E2B5;
+  height: 100%;
 }
 
 .listing-image {

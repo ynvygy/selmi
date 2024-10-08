@@ -99,6 +99,10 @@ export const Buyer: React.FC<BuyerProps> = ({provider, moduleAddress, moduleName
     }
   };
 
+  const fillerRefreshListings = async () => {
+    console.log("RefreshListings function called, but not implemented.");
+  };
+
   useEffect(() => {
     fetchAllOwners();
   }, [account]);
@@ -106,7 +110,7 @@ export const Buyer: React.FC<BuyerProps> = ({provider, moduleAddress, moduleName
   return (
     <div className="flex h-screen background-buyer">
       {/* Main content (80% width) */}
-      <ListingList listings={listings} provider={provider} moduleAddress={moduleAddress} moduleName={moduleName} seller={false} />
+      <ListingList listings={listings} moduleAddress={moduleAddress} moduleName={moduleName} seller={false} refreshListings={fillerRefreshListings}/>
     </div>
   );
 }

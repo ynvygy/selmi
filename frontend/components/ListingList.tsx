@@ -6,10 +6,10 @@ import { PinataSDK } from "pinata-web3";
 
 interface ListingListProps {
   listings: Listing[];
-  provider: any;
   moduleAddress: string;
   moduleName: string;
-  seller: boolean
+  seller: boolean;
+  refreshListings: () => Promise<void>;
 }
 
 interface Listing {
@@ -54,7 +54,7 @@ interface CompanyOffer {
   timestamp: number;
 }
 
-export const ListingList: React.FC<ListingListProps> = ({ listings, provider, moduleAddress, moduleName, seller }) => {
+export const ListingList: React.FC<ListingListProps> = ({ listings, moduleAddress, moduleName, seller, refreshListings }) => {
   const [price, setPrice] = useState<number>(0);
   const [description, setDescription] = useState<string>('');
   const [images, setImages] = useState<string[]>([]);
@@ -87,7 +87,6 @@ export const ListingList: React.FC<ListingListProps> = ({ listings, provider, mo
     const transaction:InputTransactionData = {
        data: {
          function: `${moduleAddress}::${moduleName}::create_listing`,
-         type_arguments: [],
          functionArguments: [price, description, images, getCurrentTimestamp()],
        }
      }
@@ -95,13 +94,14 @@ export const ListingList: React.FC<ListingListProps> = ({ listings, provider, mo
     try {
       await signAndSubmitTransaction(transaction);
 
-      await provider.waitForTransaction(transaction.hash);
+      //await aptos.waitForTransaction({transactionHash:response.hash});
       setPrice(0);
       setDescription('');
       alert('Listing created successfully!');
     } catch (err) {
       console.error('Error creating listing:', err);
       alert('Listing created successfully!');
+      refreshListings();
     } finally {
       setLoading(false);
     }

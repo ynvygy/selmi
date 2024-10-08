@@ -1,5 +1,5 @@
 import { useEffect, useState, ChangeEvent } from "react";
-import { useWallet } from "@aptos-labs/wallet-adapter-react";
+import { useWallet, InputTransactionData } from "@aptos-labs/wallet-adapter-react";
 // Internal components
 import { useParams } from 'react-router-dom';
 import { Provider, Network } from "aptos";
@@ -65,7 +65,7 @@ interface CompanyOffer extends BaseCombinedItem {
 
 interface Review extends BaseCombinedItem {
   description: string;
-  rating: number;
+  rating: string;
   timestamp: number;
 }
 
@@ -160,15 +160,14 @@ export function Listing() {
     const transaction:InputTransactionData = {
        data: {
          function: `${moduleAddress}::${moduleName}::add_ai_estimate`,
-         type_arguments: [],
          functionArguments: [address, index, "gemini-1.5-flash", listing.description, response, getCurrentTimestamp()],
        }
      }
 
     try {
       //const response = await signAndSubmitTransaction(transaction);
-
-      await provider.waitForTransaction(transaction.hash);
+      await signAndSubmitTransaction(transaction);
+      //wait provider.waitForTransaction(transaction.hash);
       alert('Listing created successfully!');
     } catch (err) {
       alert('Listing created successfully!');
@@ -201,7 +200,6 @@ export function Listing() {
     const transaction:InputTransactionData = {
        data: {
          function: `${moduleAddress}::${moduleName}::add_estimate`,
-         type_arguments: [],
          functionArguments: [account.address, index, estimatedPrice, estimatedDescription, getCurrentTimestamp() ],
        }
      }
@@ -211,8 +209,9 @@ export function Listing() {
       //const response = await signAndSubmitTransaction(transaction);
       //console.log(response)
 
-      await provider.waitForTransaction(transaction.hash);
+      //await provider.waitForTransaction(transaction.hash);
       alert('Estimation created successfully');
+      fetchListing()
     } catch (err) {
       fetchListing()
     }
@@ -245,7 +244,6 @@ export function Listing() {
     const transaction:InputTransactionData = {
        data: {
          function: `${moduleAddress}::${moduleName}::add_listing_review`,
-         type_arguments: [],
          functionArguments: [address, index, reviewDescription, reviewRating, getCurrentTimestamp() ],
        }
      }
@@ -253,8 +251,9 @@ export function Listing() {
     try {
       //const response = await signAndSubmitTransaction(transaction);
       await signAndSubmitTransaction(transaction);
-      await provider.waitForTransaction(transaction.hash);
+      //await provider.waitForTransaction(transaction.hash);
       alert('Review created successfully');
+      fetchListing()
     } catch (err) {
       fetchListing()
     }
@@ -286,7 +285,6 @@ export function Listing() {
     const transaction:InputTransactionData = {
        data: {
          function: `${moduleAddress}::${moduleName}::add_offer`,
-         type_arguments: [],
          functionArguments: [address, index, offerDescription, offerPrice, getCurrentTimestamp() ],
        }
      }
@@ -295,8 +293,9 @@ export function Listing() {
       await signAndSubmitTransaction(transaction);
       //const response = await signAndSubmitTransaction(transaction);
 
-      await provider.waitForTransaction(transaction.hash);
+      //await provider.waitForTransaction(transaction.hash);
       alert('Offer created successfully');
+      fetchListing()
     } catch (err) {
       fetchListing()
     }
@@ -324,7 +323,6 @@ export function Listing() {
     const transaction:InputTransactionData = {
        data: {
          function: `${moduleAddress}::${moduleName}::add_company_offer`,
-         type_arguments: [],
          functionArguments: [address, index, legalOfferPrice, getCurrentTimestamp() ],
        }
      }
@@ -332,8 +330,9 @@ export function Listing() {
     try {
       //const response = await signAndSubmitTransaction(transaction);
       await signAndSubmitTransaction(transaction);
-      await provider.waitForTransaction(transaction.hash);
+      //await provider.waitForTransaction(transaction.hash);
       alert('Legal offer created successfully');
+      fetchListing()
     } catch (err) {
       fetchListing()
     }
@@ -345,7 +344,6 @@ export function Listing() {
     const transaction:InputTransactionData = {
        data: {
          function: `${moduleAddress}::${moduleName}::change_offer_status`,
-         type_arguments: [],
          functionArguments: [index, idx, status],
        }
      }
@@ -354,7 +352,7 @@ export function Listing() {
       //const response = await signAndSubmitTransaction(transaction);
       await signAndSubmitTransaction(transaction);
 
-      await provider.waitForTransaction(transaction.hash);
+      //await provider.waitForTransaction(transaction.hash);
       alert('Offer status changed successfully');
     } catch(err) {
       fetchListing()
@@ -367,7 +365,6 @@ export function Listing() {
     const transaction:InputTransactionData = {
        data: {
          function: `${moduleAddress}::${moduleName}::change_company_offer_status`,
-         type_arguments: [],
          functionArguments: [ index, idx, status ],
        }
      }
@@ -376,7 +373,7 @@ export function Listing() {
       //const response = await signAndSubmitTransaction(transaction);
       await signAndSubmitTransaction(transaction);
 
-      await provider.waitForTransaction(transaction.hash);
+      //await provider.waitForTransaction(transaction.hash);
       alert('Legal offer status changed successfully');
     } catch (err) {
       fetchListing()
@@ -393,7 +390,7 @@ export function Listing() {
         arguments: [address, index],
       });
 
-      setListing(result[0]);
+      setListing(result[0] as Listing);
     } catch (error) {
       console.error('Error fetching companies:', error);
     }
@@ -413,7 +410,6 @@ export function Listing() {
     const transaction:InputTransactionData = {
        data: {
          function: `${moduleAddress}::${moduleName}::change_listing_status`,
-         type_arguments: [],
          functionArguments: [index, newStatus],
        }
      }
@@ -422,7 +418,7 @@ export function Listing() {
       //const response = await signAndSubmitTransaction(transaction);
       await signAndSubmitTransaction(transaction);
 
-      await provider.waitForTransaction(transaction.hash);
+      //await provider.waitForTransaction(transaction.hash);
       alert('Offer status changed successfully');
     } catch (err) {
       alert('Offer status changed successfully');
@@ -452,8 +448,11 @@ export function Listing() {
   const getReviewRating = () => {
     if (!listing.reviews || listing.reviews.length === 0) return; // Handle case with no reviews
 
-    const total = listing.reviews.reduce((sum, review) => sum + review.rating, 0); // Sum the ratings
-    setRating(total / listing.reviews.length);
+    const total = listing.reviews.reduce((sum, review) => sum + parseInt(review.rating), 0); // Sum the ratings
+    const rating = total / listing.reviews.length;
+    const formattedRating = parseFloat(rating.toFixed(2));
+
+    setRating(formattedRating);
   };
 
   useEffect(() => {

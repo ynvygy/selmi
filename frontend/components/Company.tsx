@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useWallet } from "@aptos-labs/wallet-adapter-react";
+import { useWallet, InputTransactionData } from "@aptos-labs/wallet-adapter-react";
 // Internal components
 import { CompanyCard } from '@/components/CompanyCard';
 import { ListingList } from '@/components/ListingList';
@@ -65,7 +65,7 @@ interface Review {
 }
 
 export const Company: React.FC<CompanyProps> = ({provider, moduleAddress, moduleName }) => {
-  const { account } = useWallet();
+  const { account, signAndSubmitTransaction } = useWallet();
   const [company, setCompany] = useState<Company | null>(null);
   const [listings, setListings] = useState<Listing[]>([]);
   const [description, setDescription] = useState<string>('');
@@ -150,13 +150,13 @@ export const Company: React.FC<CompanyProps> = ({provider, moduleAddress, module
     const transaction:InputTransactionData = {
        data: {
          function: `${moduleAddress}::${moduleName}::create_company`,
-         type_arguments: [],
          functionArguments: [name, description, getCurrentTimestamp()],
        }
      }
 
     try {
-      await provider.waitForTransaction(transaction.hash);
+      await signAndSubmitTransaction(transaction);
+      //await aptos.waitForTransaction({transactionHash:response.hash});
       setDescription('');
       alert('Company created successfully!');
     } catch (err) {
@@ -176,7 +176,7 @@ export const Company: React.FC<CompanyProps> = ({provider, moduleAddress, module
       <div className="flex h-screen background-company">
         {company ? (
           <>
-            <ListingList listings={listings} provider={provider} moduleAddress={moduleAddress} moduleName={moduleName} seller={false} />
+            <ListingList listings={listings} moduleAddress={moduleAddress} moduleName={moduleName} seller={false} refreshListings={fetchAllOwners}/>
             <div className="h-[20%] w-[40%]">
               <div className="listing-list pl-[40%] mt-[5%] mr-[5%]">
                 <div className="listing-card" style={{ cursor: 'pointer' }}>
