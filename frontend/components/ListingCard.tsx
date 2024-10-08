@@ -14,7 +14,7 @@ interface ListingCardProps {
 
 export const ListingCard: React.FC<ListingCardProps> = ({ address, index, price, description, photo }) => {
   const navigate = useNavigate();
-  const { account, signAndSubmitTransaction } = useWallet();
+  const { account } = useWallet();
   const [ image, setImage ] = useState("")
 
   const pinata = new PinataSDK({
@@ -33,10 +33,11 @@ export const ListingCard: React.FC<ListingCardProps> = ({ address, index, price,
       const data = await pinata.gateways.get(photo);
 
       const response = { data: data.data, contentType: 'image/webp' };
-
-      const imageUrl = URL.createObjectURL(response.data);
-      console.log(imageUrl)
-      setImage(imageUrl)
+      if (response.data instanceof Blob) {
+        const imageUrl = URL.createObjectURL(response.data);
+        console.log(imageUrl)
+        setImage(imageUrl)
+      }
     } catch (error) {
       console.log("Error fetching or displaying image:", error);
     }

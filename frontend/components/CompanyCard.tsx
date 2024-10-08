@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 interface CompanyCardProps {
-  company: Company | null;
+  company: Company;
 }
 
 // Internal components
@@ -43,13 +43,17 @@ export const CompanyCard: React.FC<CompanyCardProps> = ({ company }) => {
     return stars;
   };
 
+  useEffect(() => {
+    calculateRating()
+  }, [company]);
+
   return (
     <div className="flex flex-col items-center justify-center p-4 bg-white shadow-md rounded-lg">
       <h2 className="text-xl font-semibold mb-2">Your Company's Info</h2>
       <p className="text-gray-700 text-center mb-4">{company.name}</p>
       <p className="text-gray-700 text-center mb-4">{company.description}</p>
       <div className="flex items-center">
-        {calculateRating}
+        {rating}
         <div className="flex text-lg">
           {renderStars(rating)}
         </div>
