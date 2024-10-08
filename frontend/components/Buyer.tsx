@@ -1,14 +1,6 @@
 import { useEffect, useState } from "react";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 // Internal components
-import { toast } from "@/components/ui/use-toast";
-import { aptosClient } from "@/utils/aptosClient";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { getAccountAPTBalance } from "@/view-functions/getAccountBalance";
-import { transferAPT } from "@/entry-functions/transferAPT";
-import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import { ListingList } from "@/components/ListingList";
 
 interface BuyerProps {
@@ -33,38 +25,34 @@ interface Offer {
   description: string;
   status: string;
   price: number;
+  timestamp: number;
 }
 
 interface Estimation {
   company: string;
   price: number;
   description: string;
+  timestamp: number;
 }
 
 interface AiEstimation {
   ai_name: string;
   input: string;
   result: string;
+  timestamp: number;
 }
 
 interface CompanyOffer {
   name: string;
   status: string;
   price: number;
-}
-
-interface OwnerList {
-  address: string;
+  timestamp: number;
 }
 
 export const Buyer: React.FC<BuyerProps> = ({provider, moduleAddress, moduleName }) => {
-  const { account, signAndSubmitTransaction } = useWallet();
-  const navigate = useNavigate();
+  const { account } = useWallet();
 
   const [listings, setListings] = useState<Listing[]>([]);
-  const [owners, setOwners] = useState<string[]>([]);
-
-  const [seller, setSeller] = useState(false);
 
   const fetchAllOwners = async () => {
     if (!account) return;
@@ -77,7 +65,7 @@ export const Buyer: React.FC<BuyerProps> = ({provider, moduleAddress, moduleName
       });
 
       const ownersList = result.map((element) => element[0]);
-      setOwners(ownersList);
+
       await fetchAllListings(ownersList);
     } catch (error) {
       console.error('Error fetching companies:', error);
@@ -89,12 +77,12 @@ export const Buyer: React.FC<BuyerProps> = ({provider, moduleAddress, moduleName
 
     try {
       for (const ownerAddress of ownersList) {
-        const userListings: Listing[] = await provider.view({
+        const userListings = await provider.view({
           function: `${moduleAddress}::${moduleName}::get_user_listings`,
           type_arguments: [],
           arguments: [ownerAddress],
         });
-        const listingsWithOwner = userListings[0].map((listing, index) => ({
+        const listingsWithOwner = userListings[0].map((listing: Listing, index: number) => ({
           ...listing,
           ownerAddress,
           index,
@@ -116,7 +104,7 @@ export const Buyer: React.FC<BuyerProps> = ({provider, moduleAddress, moduleName
   return (
     <div className="flex h-screen background-buyer">
       {/* Main content (80% width) */}
-      <ListingList listings={listings} provider={provider} moduleAddress={moduleAddress} moduleName={moduleName} seller={seller} />
+      <ListingList listings={listings} provider={provider} moduleAddress={moduleAddress} moduleName={moduleName} seller={false} />
     </div>
   );
 }

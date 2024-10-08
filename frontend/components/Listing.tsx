@@ -1,21 +1,12 @@
 import { useEffect, useState } from "react";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 // Internal components
-import { toast } from "@/components/ui/use-toast";
-import { aptosClient } from "@/utils/aptosClient";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { getAccountAPTBalance } from "@/view-functions/getAccountBalance";
-import { transferAPT } from "@/entry-functions/transferAPT";
-import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
+import { BrowserRouter as useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import { Provider, Network } from "aptos";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { PinataSDK } from "pinata-web3";
 
-const systemPrompt = "You are a real estate agent. Analyze and give me the exact price";
-const userPrompt = "Give me just the price, don't write anything else";
 const GEMINI_KEY = import.meta.env.REACT_APP_GEMINI_KEY;
 const firstPrompt = 'You are a master seller of everything. Analyze and give me an approximate price, not a range.'
 const lastPrompt = "Give me just the price in dollars, don't write anything else."
@@ -37,11 +28,52 @@ interface Listing {
   ai_estimates: AiEstimation[];
   legal_offers: CompanyOffer[];
   legal_operator: string;
+  reviews: Review[]
 }
+
+interface BaseCombinedItem {
+  type: string;
+  idx: number;
+}
+
+interface Offer extends BaseCombinedItem {
+  description: string;
+  status: string;
+  price: number;
+  timestamp: number;
+}
+
+interface Estimation extends BaseCombinedItem {
+  company: string;
+  price: number;
+  description: string;
+  timestamp: number;
+}
+
+interface AiEstimation extends BaseCombinedItem {
+  ai_name: string;
+  input: string;
+  result: string;
+  timestamp: number;
+}
+
+interface CompanyOffer extends BaseCombinedItem {
+  name: string;
+  status: string;
+  price: number;
+  timestamp: number;
+}
+
+interface Review extends BaseCombinedItem {
+  description: string;
+  rating: number;
+  timestamp: number;
+}
+
+type CombinedItem = Offer | Estimation | Review | CompanyOffer | AiEstimation;
 
 export function Listing() {
   const { address, index } = useParams();
-  const navigate = useNavigate();
   const { account, signAndSubmitTransaction } = useWallet();
   const [listing, setListing] = useState<Listing>({})
   const [photos, setPhotos] = useState([])
@@ -49,9 +81,7 @@ export function Listing() {
 
   const [newStatus, setNewStatus] = useState<string>(listing.status);
 
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [combinedItems, setCombinedItems] = useState([]);
+  const [combinedItems, setCombinedItems] = useState<CombinedItem[]>([]);
 
   const [addEstimate, setAddEstimate] = useState(false);
   const [estimatedPrice, setEstimatedPrice] = useState(0);
@@ -78,7 +108,7 @@ export function Listing() {
     return Math.floor(currentDate.getTime() / 1000);
   };
 
-  const timestampConverter = (timestamp): string => {
+  const timestampConverter = (timestamp: number): string => {
       const date = new Date(timestamp * 1000);
 
       const formattedDate = date.toLocaleString();
@@ -89,9 +119,6 @@ export function Listing() {
   const fetchAiEstimate = async (event: React.FormEvent) => {
     event.preventDefault();
     //if (!account) return;
-
-    setLoading(true);
-    setError(null);
 
     /*
     const ai_result = await api.chat.completions.create({
@@ -140,13 +167,13 @@ export function Listing() {
      }
 
     try {
-      const response = await signAndSubmitTransaction(transaction);
+      //const response = await signAndSubmitTransaction(transaction);
 
       await provider.waitForTransaction(transaction.hash);
       setDescription('');
       alert('Listing created successfully!');
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      alert('Listing created successfully!');
     }
   }
 
@@ -169,9 +196,6 @@ export function Listing() {
     event.preventDefault();
     if (!account) return;
 
-    setLoading(true);
-    setError(null);
-
     const transaction:InputTransactionData = {
        data: {
          function: `${moduleAddress}::${moduleName}::add_estimate`,
@@ -188,8 +212,6 @@ export function Listing() {
       alert('Estimation created successfully');
     } catch (err) {
       fetchListing()
-    } finally {
-      setLoading(false);
     }
   }
 
@@ -217,9 +239,6 @@ export function Listing() {
     event.preventDefault();
     if (!account) return;
 
-    setLoading(true);
-    setError(null);
-
     const transaction:InputTransactionData = {
        data: {
          function: `${moduleAddress}::${moduleName}::add_listing_review`,
@@ -236,8 +255,6 @@ export function Listing() {
       alert('Review created successfully');
     } catch (err) {
       fetchListing()
-    } finally {
-      setLoading(false);
     }
   }
 
@@ -260,9 +277,6 @@ export function Listing() {
     event.preventDefault();
     if (!account) return;
 
-    setLoading(true);
-    setError(null);
-
     const transaction:InputTransactionData = {
        data: {
          function: `${moduleAddress}::${moduleName}::add_offer`,
@@ -279,8 +293,6 @@ export function Listing() {
       alert('Offer created successfully');
     } catch (err) {
       fetchListing()
-    } finally {
-      setLoading(false);
     }
   }
 
@@ -299,9 +311,6 @@ export function Listing() {
     event.preventDefault();
     if (!account) return;
 
-    setLoading(true);
-    setError(null);
-
     const transaction:InputTransactionData = {
        data: {
          function: `${moduleAddress}::${moduleName}::add_company_offer`,
@@ -318,16 +327,12 @@ export function Listing() {
       alert('Legal offer created successfully');
     } catch (err) {
       fetchListing()
-    } finally {
-      setLoading(false);
     }
   }
 
   const changeOfferStatus = async (status, idx) => {
     if (!account) return;
 
-    setLoading(true);
-    setError(null);
     const transaction:InputTransactionData = {
        data: {
          function: `${moduleAddress}::${moduleName}::change_offer_status`,
@@ -344,16 +349,11 @@ export function Listing() {
       alert('Offer status changed successfully');
     } catch(err) {
       fetchListing()
-    } finally {
-      setLoading(false);
     }
   }
 
   const changeLegalOfferStatus = async (status, idx) => {
     if (!account) return;
-
-    setLoading(true);
-    setError(null);
 
     const transaction:InputTransactionData = {
        data: {
@@ -371,8 +371,6 @@ export function Listing() {
       alert('Legal offer status changed successfully');
     } catch (err) {
       fetchListing()
-    } finally {
-      setLoading(false);
     }
   }
 
@@ -401,9 +399,6 @@ export function Listing() {
     event.preventDefault();
     if (!account) return;
 
-    setLoading(true);
-    setError(null);
-
     setListing({ ...listing, status: newStatus });
     console.log('Status updated to:', newStatus);
 
@@ -422,10 +417,7 @@ export function Listing() {
       setDescription('');
       alert('Offer status changed successfully');
     } catch (err) {
-      console.error('Error changing offer status:', err);
-      setError('Failed to change offer status. Please try again.');
-    } finally {
-      setLoading(false);
+      alert('Offer status changed successfully');
     }
   };
 

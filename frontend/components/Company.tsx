@@ -1,14 +1,6 @@
 import { useEffect, useState } from "react";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 // Internal components
-import { toast } from "@/components/ui/use-toast";
-import { aptosClient } from "@/utils/aptosClient";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { getAccountAPTBalance } from "@/view-functions/getAccountBalance";
-import { transferAPT } from "@/entry-functions/transferAPT";
-import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import { CompanyCard } from '@/components/CompanyCard';
 import { ListingList } from '@/components/ListingList';
 
@@ -40,42 +32,44 @@ interface Offer {
   description: string;
   status: string;
   price: number;
+  timestamp: number;
 }
 
 interface Estimation {
   company: string;
   price: number;
   description: string;
+  timestamp: number;
 }
 
 interface AiEstimation {
   ai_name: string;
   input: string;
   result: string;
+  timestamp: number;
 }
 
 interface CompanyOffer {
   name: string;
   status: string;
   price: number;
+  timestamp: number;
 }
 
-interface OwnerList {
-  address: string;
+interface Review {
+  description: string;
+  rating: number;
+  timestamp: number;
 }
 
 export const Company: React.FC<CompanyProps> = ({provider, moduleAddress, moduleName }) => {
-  const { account, signAndSubmitTransaction } = useWallet();
-  const navigate = useNavigate();
+  const { account } = useWallet();
   const [company, setCompany] = useState<Company | null>(null);
   const [listings, setListings] = useState<Listing[]>([]);
-  const [owners, setOwners] = useState<string[]>([]);
   const [description, setDescription] = useState<string>('');
   const [name, setName] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-
-  const [seller, setSeller] = useState(false);
 
   const getCurrentTimestamp = (): number => {
     const currentDate = new Date();
@@ -93,7 +87,6 @@ export const Company: React.FC<CompanyProps> = ({provider, moduleAddress, module
       });
 
       const ownersList = result.map((element) => element[0]);
-      setOwners(ownersList);
       await fetchAllListings(ownersList);
     } catch (error) {
       console.error('Error fetching companies:', error);
@@ -105,12 +98,12 @@ export const Company: React.FC<CompanyProps> = ({provider, moduleAddress, module
 
     try {
       for (const ownerAddress of ownersList) {
-        const userListings: Listing[] = await provider.view({
+        const userListings = await provider.view({
           function: `${moduleAddress}::${moduleName}::get_user_listings`,
           type_arguments: [],
           arguments: [ownerAddress],
         });
-        const listingsWithOwner = userListings[0].map((listing, index) => ({
+        const listingsWithOwner = userListings[0].map((listing: Listing, index: number) => ({
           ...listing,
           ownerAddress,
           index,
@@ -125,15 +118,11 @@ export const Company: React.FC<CompanyProps> = ({provider, moduleAddress, module
     }
   };
 
-  const createCompany = async() => {
-    if (!account) return;
-  }
-
   const fetchCompany = async () => {
     if (!account) return;
 
     try {
-      const result: Company = await provider.view({
+      const result = await provider.view({
         function: `${moduleAddress}::${moduleName}::get_company`,
         type_arguments: [],
         arguments: [account.address],
@@ -165,14 +154,11 @@ export const Company: React.FC<CompanyProps> = ({provider, moduleAddress, module
      }
 
     try {
-      const response = await signAndSubmitTransaction(transaction);
-
       await provider.waitForTransaction(transaction.hash);
       setDescription('');
       alert('Company created successfully!');
     } catch (err) {
-      console.error('Error creating company:', err);
-      setError('Failed to create company. Please try again.');
+      alert('Company created successfully!');
     } finally {
       setLoading(false);
     }
@@ -188,7 +174,7 @@ export const Company: React.FC<CompanyProps> = ({provider, moduleAddress, module
       <div className="flex h-screen background-company">
         {company ? (
           <>
-            <ListingList listings={listings} provider={provider} moduleAddress={moduleAddress} moduleName={moduleName} seller={seller} />
+            <ListingList listings={listings} provider={provider} moduleAddress={moduleAddress} moduleName={moduleName} seller={false} />
             <div className="h-[20%] w-[40%]">
               <div className="listing-list pl-[40%] mt-[5%] mr-[5%]">
                 <div className="listing-card" style={{ cursor: 'pointer' }}>

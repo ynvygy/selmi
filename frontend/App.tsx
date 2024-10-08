@@ -1,16 +1,7 @@
-import { useWallet } from "@aptos-labs/wallet-adapter-react";
-import { useState, useEffect } from "react";
-import { WalletSelector } from "@aptos-labs/wallet-adapter-ant-design";
 import { Provider, Network } from "aptos";
 import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 // Internal Components
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Header } from "@/components/Header";
-import { WalletDetails } from "@/components/WalletDetails";
-import { NetworkInfo } from "@/components/NetworkInfo";
-import { AccountInfo } from "@/components/AccountInfo";
-import { TransferAPT } from "@/components/TransferAPT";
-import { MessageBoard } from "@/components/MessageBoard";
 import { Seller } from "@/components/Seller";
 import { Buyer } from "@/components/Buyer";
 import { Company } from "@/components/Company";
@@ -52,15 +43,6 @@ const HomePage = () => {
 };
 
 function App() {
-  const { account, signAndSubmitTransaction } = useWallet();
-
-  interface MyCompany {
-    description: string;
-    reviews: Review[];
-  }
-
-  const { connected } = useWallet();
-
   return (
     <>
       <Header />
