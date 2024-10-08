@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, ChangeEvent } from "react";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 // Internal components
 import { BrowserRouter as useNavigate } from 'react-router-dom';
@@ -170,18 +170,17 @@ export function Listing() {
       //const response = await signAndSubmitTransaction(transaction);
 
       await provider.waitForTransaction(transaction.hash);
-      setDescription('');
       alert('Listing created successfully!');
     } catch (err) {
       alert('Listing created successfully!');
     }
   }
 
-  const handleEstimatePriceChange = async (e) => {
+  const handleEstimatePriceChange = async (e: ChangeEvent<HTMLInputElement>) => {
       setEstimatedPrice(e.target.value)
   };
 
-  const handleEstimateDescriptionChange = async (e) => {
+  const handleEstimateDescriptionChange = async (e: ChangeEvent<HTMLInputElement>) => {
       setEstimatedDescription(e.target.value);
   };
 
@@ -208,18 +207,17 @@ export function Listing() {
       const response = await signAndSubmitTransaction(transaction);
 
       await provider.waitForTransaction(transaction.hash);
-      setDescription('');
       alert('Estimation created successfully');
     } catch (err) {
       fetchListing()
     }
   }
 
-  const handleReviewDescriptionChange = async (e) => {
+  const handleReviewDescriptionChange = async (e: ChangeEvent<HTMLInputElement>) => {
       setReviewDescription(e.target.value)
   };
 
-  const handleReviewRatingChange = async (e) => {
+  const handleReviewRatingChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const value = Number(event.target.value);
     if (value >= 1 && value <= 5) {
         setReviewRating(value);
@@ -251,18 +249,17 @@ export function Listing() {
       const response = await signAndSubmitTransaction(transaction);
 
       await provider.waitForTransaction(transaction.hash);
-      setDescription('');
       alert('Review created successfully');
     } catch (err) {
       fetchListing()
     }
   }
 
-  const handleOfferDescriptionChange = async (e) => {
+  const handleOfferDescriptionChange = async (e: ChangeEvent<HTMLInputElement>) => {
       setOfferDescription(e.target.value)
   };
 
-  const handleOfferPriceChange = async (e) => {
+  const handleOfferPriceChange = async (e: ChangeEvent<HTMLInputElement>) => {
       setOfferPrice(e.target.value);
   };
 
@@ -289,14 +286,13 @@ export function Listing() {
       const response = await signAndSubmitTransaction(transaction);
 
       await provider.waitForTransaction(transaction.hash);
-      setDescription('');
       alert('Offer created successfully');
     } catch (err) {
       fetchListing()
     }
   }
 
-  const handleLegalOfferPriceChange = async (e) => {
+  const handleLegalOfferPriceChange = async (e: ChangeEvent<HTMLInputElement>) => {
       setLegalOfferPrice(e.target.value);
   };
 
@@ -323,7 +319,6 @@ export function Listing() {
       const response = await signAndSubmitTransaction(transaction);
 
       await provider.waitForTransaction(transaction.hash);
-      setDescription('');
       alert('Legal offer created successfully');
     } catch (err) {
       fetchListing()
@@ -345,7 +340,6 @@ export function Listing() {
       const response = await signAndSubmitTransaction(transaction);
 
       await provider.waitForTransaction(transaction.hash);
-      setDescription('');
       alert('Offer status changed successfully');
     } catch(err) {
       fetchListing()
@@ -367,7 +361,6 @@ export function Listing() {
       const response = await signAndSubmitTransaction(transaction);
 
       await provider.waitForTransaction(transaction.hash);
-      setDescription('');
       alert('Legal offer status changed successfully');
     } catch (err) {
       fetchListing()
@@ -414,7 +407,6 @@ export function Listing() {
       const response = await signAndSubmitTransaction(transaction);
 
       await provider.waitForTransaction(transaction.hash);
-      setDescription('');
       alert('Offer status changed successfully');
     } catch (err) {
       alert('Offer status changed successfully');
