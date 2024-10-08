@@ -265,7 +265,11 @@ export function Listing() {
   };
 
   const handleOfferPriceChange = async (e: ChangeEvent<HTMLInputElement>) => {
-      setOfferPrice(e.target.value);
+    const value = e.target.value;
+
+    const numericValue = value ? parseFloat(value) : 0;
+
+    setOfferPrice(numericValue);
   };
 
   const toggleOffer = async () => {
@@ -298,7 +302,11 @@ export function Listing() {
   }
 
   const handleLegalOfferPriceChange = async (e: ChangeEvent<HTMLInputElement>) => {
-      setLegalOfferPrice(e.target.value);
+    const value = e.target.value;
+
+    const numericValue = value ? parseFloat(value) : 0;
+
+    setLegalOfferPrice(numericValue);
   };
 
   const toggleLegalOffer = async () => {
@@ -330,7 +338,7 @@ export function Listing() {
     }
   }
 
-  const changeOfferStatus = async (status, idx) => {
+  const changeOfferStatus = async (status: string, idx: number) => {
     if (!account) return;
 
     const transaction:InputTransactionData = {
@@ -352,7 +360,7 @@ export function Listing() {
     }
   }
 
-  const changeLegalOfferStatus = async (status, idx) => {
+  const changeLegalOfferStatus = async (status: string, idx: number) => {
     if (!account) return;
 
     const transaction:InputTransactionData = {
@@ -378,7 +386,7 @@ export function Listing() {
     if (!account) return;
     console.log(moduleAddress)
     try {
-      const result: Listing[] = await provider.view({
+      const result = await provider.view({
         function: `${moduleAddress}::${moduleName}::get_user_listing`,
         type_arguments: [],
         arguments: [address, index],
@@ -421,7 +429,7 @@ export function Listing() {
     }
   };
 
-  const filesImagesDownload = async (event) => {
+  const filesImagesDownload = async () => {
     if (!listing.photos || listing.photos.length == 0) return;
     if (photos.length > 0) return;
 
@@ -440,7 +448,7 @@ export function Listing() {
     }
   }
 
-  const getReviewRating = (reviews) => {
+  const getReviewRating = () => {
     if (!listing.reviews || listing.reviews.length === 0) return; // Handle case with no reviews
 
     const total = listing.reviews.reduce((sum, review) => sum + parseInt(review.rating), 0); // Sum the ratings
