@@ -19,6 +19,8 @@ interface Listing {
   ai_estimates: AiEstimation[];
   legal_offers: CompanyOffer[];
   legal_operator: string;
+  ownerAddress: string;
+  index: number;
 }
 
 interface Offer {

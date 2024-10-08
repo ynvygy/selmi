@@ -8,7 +8,7 @@
     "move:compile": "node ./scripts/move/compile",
     "move:publish": "node ./scripts/move/publish",
     "move:upgrade": "node ./scripts/move/upgrade",
-    "dev": "vite",
+    "dev": "vite --no-open",
     "build": "tsc && vite build",
     "deploy": "vercel",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",

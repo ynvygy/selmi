@@ -19,30 +19,36 @@ interface Listing {
   ai_estimates: AiEstimation[];
   legal_offers: CompanyOffer[];
   legal_operator: string;
+  ownerAddress: string;
+  index: number;
 }
 
 interface Offer {
   description: string;
   status: string;
   price: number;
+  timestamp: string;
 }
 
 interface Estimation {
   company: string;
   price: number;
   description: string;
+  timestamp: string;
 }
 
 interface AiEstimation {
   ai_name: string;
   input: string;
   result: string;
+  timestamp: string;
 }
 
 interface CompanyOffer {
   name: string;
   status: string;
   price: number;
+  timestamp: string;
 }
 
 export const Seller: React.FC<SellerProps> = ({provider, moduleAddress, moduleName }) => {

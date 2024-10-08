@@ -1,6 +1,6 @@
 import { useState } from "react";
 interface CompanyCardProps {
-  company: Company;
+  company: Company | null;
 }
 
 // Internal components

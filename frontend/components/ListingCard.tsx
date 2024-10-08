@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 // Internal components
-import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { PinataSDK } from "pinata-web3";
 
 interface ListingCardProps {
@@ -26,7 +26,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({ address, index, price,
     navigate(`/listings/${address}/${index}`);
   };
 
-  const fileImageDownload = async (event) => {
+  const fileImageDownload = async () => {
     if (!photo) return;
 
     try {
