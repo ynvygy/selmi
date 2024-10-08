@@ -184,7 +184,7 @@ export function Listing() {
       setEstimatedDescription(e.target.value);
   };
 
-  const toggleEstimate = async (event) => {
+  const toggleEstimate = async () => {
       setAddEstimate(!addEstimate)
       setAddReview(false)
       setAddOffer(false)
@@ -204,7 +204,9 @@ export function Listing() {
      }
 
     try {
-      const response = await signAndSubmitTransaction(transaction);
+      await signAndSubmitTransaction(transaction);
+      //const response = await signAndSubmitTransaction(transaction);
+      //console.log(response)
 
       await provider.waitForTransaction(transaction.hash);
       alert('Estimation created successfully');
@@ -218,11 +220,11 @@ export function Listing() {
   };
 
   const handleReviewRatingChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    const value = Number(event.target.value);
+    const value = Number(e.target.value);
     if (value >= 1 && value <= 5) {
         setReviewRating(value);
-    } else if (event.target.value === '') {
-        setReviewRating('');
+    } else if (e.target.value === '') {
+        setReviewRating(0);
     }
   };
 
