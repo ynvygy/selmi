@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, ChangeEvent } from "react";
 import { useWallet, InputTransactionData } from "@aptos-labs/wallet-adapter-react";
 // Internal components
 import { ListingCard } from "@/components/ListingCard"
@@ -54,18 +54,12 @@ interface CompanyOffer {
   timestamp: number;
 }
 
-interface Review {
-  description: string;
-  rating: number;
-  timestamp: number;
-}
-
 export const ListingList: React.FC<ListingListProps> = ({ listings, provider, moduleAddress, moduleName, seller }) => {
   const [price, setPrice] = useState<number>(0);
   const [description, setDescription] = useState<string>('');
-  const [images, setImages] = useState<[]>([]);
+  const [images, setImages] = useState<string[]>([]);
 
-  const { account, signAndSubmitTransaction } = useWallet();
+  const { account } = useWallet();
   const [loading, setLoading] = useState<boolean>(false);
   const [createListing, setCreateListing] = useState<boolean>(false);
 
@@ -118,17 +112,20 @@ export const ListingList: React.FC<ListingListProps> = ({ listings, provider, mo
     //setImages((prevImages) => [...prevImages, "public/watch.jpeg"]);
 
     console.log(images);
-    const file = event.target.files[0]
-      if (typeof file !== 'undefined') {
-      try {
-        const uploading_file = new File([file], "test.png", { type: "image/png" });
-        const upload = await pinata.upload.file(uploading_file);
-        console.log(upload)
-        setImages((prevImages) => [...prevImages, upload.IpfsHash]);
-      } catch (error){
-        console.log("ipfs image upload error: ", error)
+    const files = event.target.files
+      if (files && files.length > 0) {
+        const file = files[0];
+        if (typeof file !== 'undefined') {
+          try {
+            const uploading_file = new File([file], "new_file.png", { type: "image/png" });
+            const upload = await pinata.upload.file(uploading_file);
+            console.log(upload)
+            setImages((prevImages) => [...prevImages, upload.IpfsHash]);
+          } catch (error){
+            console.log("ipfs image upload error: ", error)
+          }
+        }
       }
-    }
   }
 
   const toggleListing = async () => {
