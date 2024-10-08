@@ -13,7 +13,7 @@ const lastPrompt = "Give me just the price in dollars, don't write anything else
 const moduleAddress = import.meta.env.REACT_APP_MODULE_ADDRESS;
 const moduleName = import.meta.env.REACT_APP_MODULE_NAME;
 
-const provider = new Provider(Network.DEVNET);
+const provider = new Provider(Network.TESTNET);
 
 const statuses = ['OPEN', 'ACTIVE', 'REJECTED', 'ACCEPTED', 'INACTIVE'];
 

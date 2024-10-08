@@ -10,7 +10,7 @@ import { Listing } from "@/components/Listing";
 const MODULE_ADDRESS = import.meta.env.REACT_APP_MODULE_ADDRESS;
 const MODULE_NAME = import.meta.env.REACT_APP_MODULE_NAME;
 
-const provider = new Provider(Network.DEVNET);
+const provider = new Provider(Network.TESTNET);
 
 const HomePage = () => {
   const navigate = useNavigate();
