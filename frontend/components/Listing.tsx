@@ -1,7 +1,6 @@
 import { useEffect, useState, ChangeEvent } from "react";
 import { useWallet } from "@aptos-labs/wallet-adapter-react";
 // Internal components
-import { BrowserRouter as useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import { Provider, Network } from "aptos";
 import { GoogleGenerativeAI } from "@google/generative-ai";
@@ -177,7 +176,11 @@ export function Listing() {
   }
 
   const handleEstimatePriceChange = async (e: ChangeEvent<HTMLInputElement>) => {
-      setEstimatedPrice(e.target.value)
+    const value = e.target.value;
+
+    const numericValue = value ? parseFloat(value) : 0;
+
+    setEstimatedPrice(numericValue);
   };
 
   const handleEstimateDescriptionChange = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -228,7 +231,7 @@ export function Listing() {
     }
   };
 
-  const toggleReview = async (event) => {
+  const toggleReview = async () => {
       setAddReview(!addReview)
       setAddEstimate(false)
       setAddOffer(false)
@@ -248,8 +251,8 @@ export function Listing() {
      }
 
     try {
-      const response = await signAndSubmitTransaction(transaction);
-
+      //const response = await signAndSubmitTransaction(transaction);
+      await signAndSubmitTransaction(transaction);
       await provider.waitForTransaction(transaction.hash);
       alert('Review created successfully');
     } catch (err) {
@@ -265,7 +268,7 @@ export function Listing() {
       setOfferPrice(e.target.value);
   };
 
-  const toggleOffer = async (event) => {
+  const toggleOffer = async () => {
       setAddOffer(!addOffer)
       setAddReview(false)
       setAddEstimate(false)
@@ -298,7 +301,7 @@ export function Listing() {
       setLegalOfferPrice(e.target.value);
   };
 
-  const toggleLegalOffer = async (event) => {
+  const toggleLegalOffer = async () => {
       setAddLegalOffer(!addLegalOffer)
       setAddReview(false)
       setAddEstimate(false)
@@ -318,8 +321,8 @@ export function Listing() {
      }
 
     try {
-      const response = await signAndSubmitTransaction(transaction);
-
+      //const response = await signAndSubmitTransaction(transaction);
+      await signAndSubmitTransaction(transaction);
       await provider.waitForTransaction(transaction.hash);
       alert('Legal offer created successfully');
     } catch (err) {
@@ -339,7 +342,8 @@ export function Listing() {
      }
 
     try {
-      const response = await signAndSubmitTransaction(transaction);
+      //const response = await signAndSubmitTransaction(transaction);
+      await signAndSubmitTransaction(transaction);
 
       await provider.waitForTransaction(transaction.hash);
       alert('Offer status changed successfully');
@@ -360,7 +364,8 @@ export function Listing() {
      }
 
     try {
-      const response = await signAndSubmitTransaction(transaction);
+      //const response = await signAndSubmitTransaction(transaction);
+      await signAndSubmitTransaction(transaction);
 
       await provider.waitForTransaction(transaction.hash);
       alert('Legal offer status changed successfully');
@@ -406,7 +411,8 @@ export function Listing() {
      }
 
     try {
-      const response = await signAndSubmitTransaction(transaction);
+      //const response = await signAndSubmitTransaction(transaction);
+      await signAndSubmitTransaction(transaction);
 
       await provider.waitForTransaction(transaction.hash);
       alert('Offer status changed successfully');
