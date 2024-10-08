@@ -74,11 +74,11 @@ type CombinedItem = Offer | Estimation | Review | CompanyOffer | AiEstimation;
 export function Listing() {
   const { address, index } = useParams();
   const { account, signAndSubmitTransaction } = useWallet();
-  const [listing, setListing] = useState<Listing>({})
-  const [photos, setPhotos] = useState([])
+  const [listing, setListing] = useState<Partial<Listing>>({});
+  const [photos, setPhotos] = useState<string[]>([]);
   const [rating, setRating] = useState(0)
 
-  const [newStatus, setNewStatus] = useState<string>(listing.status);
+  const [newStatus, setNewStatus] = useState('');
 
   const [combinedItems, setCombinedItems] = useState<CombinedItem[]>([]);
 
@@ -292,7 +292,8 @@ export function Listing() {
      }
 
     try {
-      const response = await signAndSubmitTransaction(transaction);
+      await signAndSubmitTransaction(transaction);
+      //const response = await signAndSubmitTransaction(transaction);
 
       await provider.waitForTransaction(transaction.hash);
       alert('Offer created successfully');
@@ -392,7 +393,6 @@ export function Listing() {
         arguments: [address, index],
       });
 
-      console.log(result);
       setListing(result[0]);
     } catch (error) {
       console.error('Error fetching companies:', error);
@@ -439,9 +439,10 @@ export function Listing() {
 
         const response = { data: data.data, contentType: 'image/webp' };
 
-        const imageUrl = URL.createObjectURL(response.data);
-
-        setPhotos((prevPhotos) => [...prevPhotos, imageUrl]);
+        if (response.data instanceof Blob) {
+          const imageUrl = URL.createObjectURL(response.data);
+          setPhotos((prevPhotos) => [...prevPhotos, imageUrl]);
+        }
       } catch (error) {
         console.log("Error fetching or displaying image:", error);
       }
@@ -451,7 +452,7 @@ export function Listing() {
   const getReviewRating = () => {
     if (!listing.reviews || listing.reviews.length === 0) return; // Handle case with no reviews
 
-    const total = listing.reviews.reduce((sum, review) => sum + parseInt(review.rating), 0); // Sum the ratings
+    const total = listing.reviews.reduce((sum, review) => sum + review.rating, 0); // Sum the ratings
     setRating(total / listing.reviews.length);
   };
 
@@ -463,7 +464,9 @@ export function Listing() {
     if (listing.description) {
       orderListingItems();
     }
-    setNewStatus(listing.status)
+    if (listing.status !== undefined) {
+        setNewStatus(listing.status);
+    }
     filesImagesDownload();
     getReviewRating()
   }, [listing]);
@@ -471,11 +474,11 @@ export function Listing() {
   const orderListingItems = async () => {
     if (listing) {
       const combined = [
-        ...listing.offers.map((offer, idx) => ({ ...offer, type: 'offer', idx })),
-        ...listing.estimates.map((est, idx) => ({ ...est, type: 'estimation', idx })),
-        ...listing.ai_estimates.map((aiEst, idx) => ({ ...aiEst, type: 'ai_estimation', idx })),
-        ...listing.reviews.map((review, idx) => ({ ...review, type: 'review', idx })),
-        ...listing.legal_offers.map((legalOffer, idx) => ({ ...legalOffer, type: 'legal_offer', idx }))
+        ...((listing.offers ?? []).map((offer, idx) => ({ ...offer, type: 'offer', idx }))),
+        ...((listing.estimates ?? []).map((est, idx) => ({ ...est, type: 'estimation', idx }))),
+        ...((listing.ai_estimates ?? []).map((aiEst, idx) => ({ ...aiEst, type: 'ai_estimation', idx }))),
+        ...((listing.reviews ?? []).map((review, idx) => ({ ...review, type: 'review', idx }))),
+        ...((listing.legal_offers ?? []).map((legalOffer, idx) => ({ ...legalOffer, type: 'legal_offer', idx })))
       ];
 
       // Sort by timestamp
@@ -674,6 +677,7 @@ export function Listing() {
           </div>
         </div>
       </div>
+
       <div>
         <div className="p-3 w-[80%] ml-[10%]">
             {combinedItems && combinedItems.map((combination, index) => {
@@ -698,25 +702,25 @@ export function Listing() {
                       combination.type === 'ai_estimation' ?
                       (<>
                         <p className="font-semibold">{timestampConverter(combination.timestamp)}</p>
-                        <p className="italic">The '{combination.ai_name}' AI</p>
-                        <p className="italic">Using the following input '{combination.input}'</p>
-                        <p className="italic">Estimated the price to be: {combination.result}</p>
+                        <p className="italic">The '{(combination as AiEstimation).ai_name}' AI</p>
+                        <p className="italic">Using the following input '{(combination as AiEstimation).input}'</p>
+                        <p className="italic">Estimated the price to be: {(combination as AiEstimation).result}</p>
                       </>) : combination.type === 'estimation' ?
                       (<>
                         <p className="font-semibold">{timestampConverter(combination.timestamp)}</p>
-                        <p className="italic">The company using the address '{combination.company}'</p>
-                        <p className="italic">Left the following comment '{combination.description}'</p>
-                        <p className="italic">Estimated the price to be: {combination.price}</p>
+                        <p className="italic">The company using the address '{(combination as Estimation).company}'</p>
+                        <p className="italic">Left the following comment '{(combination as Estimation).description}'</p>
+                        <p className="italic">Estimated the price to be: {(combination as Estimation).price}</p>
                       </>) : combination.type === 'review' ?
                       (<>
                         <p className="font-semibold">{timestampConverter(combination.timestamp)}</p>
-                        <p className="italic">A user visited the flat and reviewed it as '{combination.description}'</p>
-                        <p className="italic">The user also rated the flat: '{combination.rating} / 5'</p>
+                        <p className="italic">A user visited the flat and reviewed it as '{(combination as Review).description}'</p>
+                        <p className="italic">The user also rated the flat: '{(combination as Review).rating} / 5'</p>
                       </>) : combination.type === 'offer' ?
                       (<>
                         <p className="font-semibold">{timestampConverter(combination.timestamp)}</p>
-                        <p className="italic">The price offer was: {combination.price}</p>
-                        {combination.status === 'OPEN' ? (
+                        <p className="italic">The price offer was: {(combination as Offer).price}</p>
+                        {(combination as Offer).status === 'OPEN' ? (
                           <div className="flex space-x-4 mt-4">
                             <button
                               onClick={() => changeOfferStatus('ACCEPTED', combination.idx)}
@@ -732,14 +736,14 @@ export function Listing() {
                             </button>
                           </div>
                         ) :
-                        <p className="italic">The offer was: {combination.status}</p>}
+                        <p className="italic">The offer was: {(combination as Offer).status}</p>}
                       </>) : combination.type === 'legal_offer' ?
                       (<>
                         <p className="font-semibold">{timestampConverter(combination.timestamp)}</p>
-                        <p className="italic">The company using the address '{combination.name}' made a legal offer</p>
-                        <p className="italic">The company wants a fee of: '{combination.price}'</p>
+                        <p className="italic">The company using the address '{(combination as CompanyOffer).name}' made a legal offer</p>
+                        <p className="italic">The company wants a fee of: '{(combination as CompanyOffer).price}'</p>
                         <p>{combination.idx}</p>
-                        {combination.status === 'ACTIVE' ? (
+                        {(combination as CompanyOffer).status === 'ACTIVE' ? (
                           <div className="flex space-x-4 mt-4">
                             <button
                               onClick={() => changeLegalOfferStatus('ACCEPTED', combination.idx)}
@@ -755,7 +759,7 @@ export function Listing() {
                             </button>
                           </div>
                         ) :
-                        <p className="italic">The offer was: {combination.status}</p>}
+                        <p className="italic">The offer was: {(combination as CompanyOffer).status}</p>}
                       </>) : (<></>)
                     }
 
