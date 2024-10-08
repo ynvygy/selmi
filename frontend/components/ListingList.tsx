@@ -59,7 +59,7 @@ export const ListingList: React.FC<ListingListProps> = ({ listings, provider, mo
   const [description, setDescription] = useState<string>('');
   const [images, setImages] = useState<string[]>([]);
 
-  const { account } = useWallet();
+  const { account, signAndSubmitTransaction } = useWallet();
   const [loading, setLoading] = useState<boolean>(false);
   const [createListing, setCreateListing] = useState<boolean>(false);
 
@@ -93,7 +93,7 @@ export const ListingList: React.FC<ListingListProps> = ({ listings, provider, mo
      }
 
     try {
-      //const response = await signAndSubmitTransaction(transaction);
+      await signAndSubmitTransaction(transaction);
 
       await provider.waitForTransaction(transaction.hash);
       setPrice(0);

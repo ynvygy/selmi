@@ -27,28 +27,28 @@ interface Offer {
   description: string;
   status: string;
   price: number;
-  timestamp: string;
+  timestamp: number;
 }
 
 interface Estimation {
   company: string;
   price: number;
   description: string;
-  timestamp: string;
+  timestamp: number;
 }
 
 interface AiEstimation {
   ai_name: string;
   input: string;
   result: string;
-  timestamp: string;
+  timestamp: number;
 }
 
 interface CompanyOffer {
   name: string;
   status: string;
   price: number;
-  timestamp: string;
+  timestamp: number;
 }
 
 export const Seller: React.FC<SellerProps> = ({provider, moduleAddress, moduleName }) => {
