@@ -97,10 +97,10 @@ export const ListingList: React.FC<ListingListProps> = ({ listings, moduleAddres
       //await aptos.waitForTransaction({transactionHash:response.hash});
       setPrice(0);
       setDescription('');
-      alert('Listing created successfully!');
+      setCreateListing(false)
+      refreshListings();
     } catch (err) {
       console.error('Error creating listing:', err);
-      alert('Listing created successfully!');
       refreshListings();
     } finally {
       setLoading(false);

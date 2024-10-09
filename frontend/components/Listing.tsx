@@ -167,10 +167,9 @@ export function Listing() {
     try {
       //const response = await signAndSubmitTransaction(transaction);
       await signAndSubmitTransaction(transaction);
+      fetchListing()
       //wait provider.waitForTransaction(transaction.hash);
-      alert('Listing created successfully!');
     } catch (err) {
-      alert('Listing created successfully!');
     }
   }
 
@@ -210,7 +209,6 @@ export function Listing() {
       //console.log(response)
 
       //await provider.waitForTransaction(transaction.hash);
-      alert('Estimation created successfully');
       fetchListing()
     } catch (err) {
       fetchListing()
@@ -252,7 +250,6 @@ export function Listing() {
       //const response = await signAndSubmitTransaction(transaction);
       await signAndSubmitTransaction(transaction);
       //await provider.waitForTransaction(transaction.hash);
-      alert('Review created successfully');
       fetchListing()
     } catch (err) {
       fetchListing()
@@ -294,7 +291,6 @@ export function Listing() {
       //const response = await signAndSubmitTransaction(transaction);
 
       //await provider.waitForTransaction(transaction.hash);
-      alert('Offer created successfully');
       fetchListing()
     } catch (err) {
       fetchListing()
@@ -331,7 +327,6 @@ export function Listing() {
       //const response = await signAndSubmitTransaction(transaction);
       await signAndSubmitTransaction(transaction);
       //await provider.waitForTransaction(transaction.hash);
-      alert('Legal offer created successfully');
       fetchListing()
     } catch (err) {
       fetchListing()
@@ -353,7 +348,6 @@ export function Listing() {
       await signAndSubmitTransaction(transaction);
 
       //await provider.waitForTransaction(transaction.hash);
-      alert('Offer status changed successfully');
     } catch(err) {
       fetchListing()
     }
@@ -374,7 +368,6 @@ export function Listing() {
       await signAndSubmitTransaction(transaction);
 
       //await provider.waitForTransaction(transaction.hash);
-      alert('Legal offer status changed successfully');
     } catch (err) {
       fetchListing()
     }
@@ -419,9 +412,7 @@ export function Listing() {
       await signAndSubmitTransaction(transaction);
 
       //await provider.waitForTransaction(transaction.hash);
-      alert('Offer status changed successfully');
     } catch (err) {
-      alert('Offer status changed successfully');
     }
   };
 

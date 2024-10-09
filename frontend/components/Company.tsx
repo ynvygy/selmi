@@ -158,9 +158,7 @@ export const Company: React.FC<CompanyProps> = ({provider, moduleAddress, module
       await signAndSubmitTransaction(transaction);
       //await aptos.waitForTransaction({transactionHash:response.hash});
       setDescription('');
-      alert('Company created successfully!');
     } catch (err) {
-      alert('Company created successfully!');
     } finally {
       setLoading(false);
     }

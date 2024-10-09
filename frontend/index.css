@@ -173,13 +173,13 @@ textarea {
 }
 
 .background {
-  background-image: url('./selmi.jpeg');
+  background-image: url("https://i.ibb.co/mh9ZLMf/selmi.jpg");
   background-size: cover;
   background-position: center;
 }
 
 .logo {
-  background-image: url('./s3.jpeg');
+  background-image: url("https://i.ibb.co/tZkdDS9/s3.jpg");
   background-size: cover;
   background-position: center;
 }
